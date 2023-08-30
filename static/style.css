@@ -126,28 +126,49 @@ input[type="submit"] {
     display: block;
 }
 
-.tab-labels {
+.tab-buttons {
     display: flex;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-top: 20px;
 }
 
 .tab-label {
     margin: 0 10px;
     padding: 10px 20px;
-    border: 1px solid #ccc;
+    border: 2px solid #007bff;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    color: #fff; /* Set default text color to white */
+    background-color: #007bff; /* Set default background color to blue */
 }
 
 .tab-label:hover {
-    background-color: #f2f2f2;
+    background-color: #fff; /* Change background to white on hover */
+    color: #007bff; /* Change text color to blue on hover */
 }
 
 .tab-label:checked {
-    background-color: #007bff;
-    color: #fff;
+    background-color: #fff; /* Change background to white when checked */
+    color: #007bff; /* Change text color to blue when checked */
 }
+
+.header {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.header h1 {
+    color: #007bff;
+    font-size: 24px;
+}
+
+.tab-title {
+    text-align: left;
+    color: #007bff;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
 
 
