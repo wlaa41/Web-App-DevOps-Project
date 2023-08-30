@@ -34,6 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 });
         });
     });
+
     // Tab buttons click events
     btnOrders.addEventListener("click", function() {
         orderListContent.style.display = "block";
@@ -45,3 +46,4 @@ document.addEventListener("DOMContentLoaded", function() {
         addOrderContent.style.display = "block";
     });
 });
+
