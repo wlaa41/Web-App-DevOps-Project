@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order List</title>
+</head>
+<body>
+    <h1>Order List</h1>
+    <ul>
+        {% for order in orders %}
+            <li>{{ order.name }} ordered {{ order.order }}</li>
+        {% endfor %}
+    </ul>
+    <h2>Add New Order</h2>
+    <form method="post" action="/add_order">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="order">Order:</label>
+        <input type="text" id="order" name="order" required><br>
+        <input type="submit" value="Add Order">
+    </form>
+</body>
+</html>
