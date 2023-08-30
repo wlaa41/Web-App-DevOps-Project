@@ -49,13 +49,28 @@ class Order(Base):
 # route to display orders
 @app.route('/')
 def display_orders():
+
+    page = int(request.args.get('page', 1))
+    rows_per_page = 25
+
+    # Calculate the start and end indices for the current page
+    start_index = (page - 1) * rows_per_page
+    end_index = start_index + rows_per_page
+
     # Create a session to interact with the database
     session = Session()
 
-    # Fetch data from the database
-    orders = session.query(Order).all()
+    # Fetch a subset of data for the current page
+    current_page_orders = session.query(Order).order_by(Order.user_id, Order.date_uuid).slice(start_index, end_index).all()
 
-    return render_template('orders.html', orders=orders)
+    # Calculate the total number of pages
+    total_rows = session.query(Order).count()
+    total_pages = (total_rows + rows_per_page - 1) // rows_per_page
+
+    # Close the session
+    session.close()
+
+    return render_template('orders.html', orders=current_page_orders, page=page, total_pages=total_pages)
 
 # route to add orders
 @app.route('/add_order', methods=['POST'])
