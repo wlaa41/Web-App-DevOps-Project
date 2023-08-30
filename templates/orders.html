@@ -57,62 +57,73 @@
         <div class="content" id="add-order-content" style="display: none;">
             <h2 class="tab-title">Add New Order</h2>
             <form method="post" action="/add_order">
-                <label for="date_uuid">Date UUID:</label>
-                <select id="date_uuid" name="date_uuid" required>
-                    <option value="" disabled selected>Select Date UUID</option>
-                    {% for order in orders %}
-                        <option value="{{ order.date_uuid }}">{{ order.date_uuid }}</option>
-                    {% endfor %}
-                </select><br>
-                
-                <label for="user_id">User ID:</label>
-                <select id="user_id" name="user_id" required>
-                    <option value="" disabled selected>Select User ID</option>
-                    {% for order in orders %}
-                        <option value="{{ order.user_id }}">{{ order.user_id }}</option>
-                    {% endfor %}
-                </select><br>
-                
-                <tr>
-                    <td><label for="card_number">Card Number:</label></td>
-                    <td>
-                        <input type="text" id="card_number" name="card_number" required>
-                        <span class="field-error" id="card_number_error"></span>
-                    </td>
-                </tr>
-                
-                <label for="store_code">Store Code:</label>
-                <select id="store_code" name="store_code" required>
-                    <option value="" disabled selected>Select Store Code</option>
-                    {% for order in orders %}
-                        <option value="{{ order.store_code }}">{{ order.store_code }}</option>
-                    {% endfor %}
-                </select><br>
-                
-                <label for="product_code">Product Code:</label>
-                <select id="product_code" name="product_code" required>
-                    <option value="" disabled selected>Select Product Code</option>
-                    {% for order in orders %}
-                        <option value="{{ order.product_code }}">{{ order.product_code }}</option>
-                    {% endfor %}
-                </select><br>
-                
-                <tr>
-                    <td><label for="product_quantity">Product Quantity:</label></td>
-                    <td>
-                        <input type="number" id="product_quantity" name="product_quantity" required min="1">
-                    </td>
-                </tr>
-                
-                <tr>
-                    <td><label for="order_date">Order Date:</label></td>
-                    <td><input type="date" id="order_date" name="order_date" required></td>
-                </tr>
-                <tr>
-                    <td><label for="shipping_date">Shipping Date:</label></td>
-                    <td><input type="date" id="shipping_date" name="shipping_date" required></td>
-                </tr>
-                
+                <table>
+                    <tr>
+                        <td><label for="date_uuid">Date UUID:</label></td>
+                        <td>
+                            <select id="date_uuid" name="date_uuid" required>
+                                <option value="" disabled selected>Select Date UUID</option>
+                                {% for order in orders %}
+                                    <option value="{{ order.date_uuid }}">{{ order.date_uuid }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="user_id">User ID:</label></td>
+                        <td>
+                            <select id="user_id" name="user_id" required>
+                                <option value="" disabled selected>Select User ID</option>
+                                {% for order in orders %}
+                                    <option value="{{ order.user_id }}">{{ order.user_id }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="card_number">Card Number:</label></td>
+                        <td>
+                            <input type="text" id="card_number" name="card_number" required>
+                            <span class="field-error" id="card_number_error"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="store_code">Store Code:</label></td>
+                        <td>
+                            <select id="store_code" name="store_code" required>
+                                <option value="" disabled selected>Select Store Code</option>
+                                {% for order in orders %}
+                                    <option value="{{ order.store_code }}">{{ order.store_code }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="product_code">Product Code:</label></td>
+                        <td>
+                            <select id="product_code" name="product_code" required>
+                                <option value="" disabled selected>Select Product Code</option>
+                                {% for order in orders %}
+                                    <option value="{{ order.product_code }}">{{ order.product_code }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="product_quantity">Product Quantity:</label></td>
+                        <td>
+                            <input type="number" id="product_quantity" name="product_quantity" required min="1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="order_date">Order Date:</label></td>
+                        <td><input type="date" id="order_date" name="order_date" required></td>
+                    </tr>
+                    <tr>
+                        <td><label for="shipping_date">Shipping Date:</label></td>
+                        <td><input type="date" id="shipping_date" name="shipping_date" required></td>
+                    </tr>
+                </table>
                 <input type="submit" value="Add Order">
             </form>
         </div>
