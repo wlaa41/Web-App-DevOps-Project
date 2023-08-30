@@ -49,7 +49,7 @@ class Order(Base):
 # route to display orders
 @app.route('/')
 def display_orders():
-    
+
     page = int(request.args.get('page', 1))
     rows_per_page = 25
 
@@ -61,8 +61,8 @@ def display_orders():
     session = Session()
 
     # Fetch a subset of data for the current page
-    current_page_orders = session.query(Order).slice(start_index, end_index).all()
-
+    current_page_orders = session.query(Order).order_by(Order.id).slice(start_index, end_index).all()
+    
     # Calculate the total number of pages
     total_rows = session.query(Order).count()
     total_pages = (total_rows + rows_per_page - 1) // rows_per_page
