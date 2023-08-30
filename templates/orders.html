@@ -34,6 +34,19 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <!-- Pagination controls -->
+    <div class="pagination">
+        {% if page > 1 %}
+            <a href="{{ url_for('display_orders', page=page-1) }}" class="pagination-link">Previous</a>
+        {% endif %}
+        
+        <span>Page {{ page }} of {{ total_pages }}</span>
+        
+        {% if page < total_pages %}
+            <a href="{{ url_for('display_orders', page=page+1) }}" class="pagination-link">Next</a>
+        {% endif %}
+    </div>
     
     <h2>Add New Order</h2>
     <form method="post" action="/add_order">
