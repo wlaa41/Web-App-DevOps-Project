@@ -7,16 +7,38 @@
     <h1>Order List</h1>
     <ul>
         {% for order in orders %}
-            <li>{{ order.name }} ordered {{ order.order }}</li>
+            <li>
+                <strong>Date UUID:</strong> {{ order.date_uuid }}<br>
+                <strong>User ID:</strong> {{ order.user_id }}<br>
+                <strong>Card Number:</strong> {{ order.card_number }}<br>
+                <strong>Store Code:</strong> {{ order.store_code }}<br>
+                <strong>Product Code:</strong> {{ order.product_code }}<br>
+                <strong>Product Quantity:</strong> {{ order.product_quantity }}<br>
+                <strong>Order Date:</strong> {{ order.order_date }}<br>
+                <strong>Shipping Date:</strong> {{ order.shipping_date }}
+            </li>
         {% endfor %}
     </ul>
     <h2>Add New Order</h2>
     <form method="post" action="/add_order">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br>
-        <label for="order">Order:</label>
-        <input type="text" id="order" name="order" required><br>
+        <label for="date_uuid">Date UUID:</label>
+        <input type="text" id="date_uuid" name="date_uuid" required><br>
+        <label for="user_id">User ID:</label>
+        <input type="text" id="user_id" name="user_id" required><br>
+        <label for="card_number">Card Number:</label>
+        <input type="text" id="card_number" name="card_number" required><br>
+        <label for="store_code">Store Code:</label>
+        <input type="text" id="store_code" name="store_code" required><br>
+        <label for="product_code">Product Code:</label>
+        <input type="text" id="product_code" name="product_code" required><br>
+        <label for="product_quantity">Product Quantity:</label>
+        <input type="number" id="product_quantity" name="product_quantity" required><br>
+        <label for="order_date">Order Date:</label>
+        <input type="text" id="order_date" name="order_date" required><br>
+        <label for="shipping_date">Shipping Date:</label>
+        <input type="text" id="shipping_date" name="shipping_date" required><br>
         <input type="submit" value="Add Order">
     </form>
 </body>
 </html>
+
