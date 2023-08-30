@@ -58,7 +58,12 @@
             <h2 class="tab-title">Add New Order</h2>
             <form method="post" action="/add_order">
                 <label for="date_uuid">Date UUID:</label>
-                <input type="text" id="date_uuid" name="date_uuid" required><br>
+                <select id="date_uuid" name="date_uuid" required>
+                    <option value="" disabled selected>Select Date UUID</option>
+                    {% for order in orders %}
+                        <option value="{{ order.date_uuid }}">{{ order.date_uuid }}</option>
+                    {% endfor %}
+                </select><br>
                 
                 <label for="user_id">User ID:</label>
                 <select id="user_id" name="user_id" required>
