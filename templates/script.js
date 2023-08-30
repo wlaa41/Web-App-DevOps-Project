@@ -1,7 +1,12 @@
 document.addEventListener("DOMContentLoaded", function() {
     const paginationLinks = document.querySelectorAll(".pagination-link");
     const orderTable = document.querySelector(".order-table");
+    const btnOrders = document.getElementById("btn-orders");
+    const btnAddOrder = document.getElementById("btn-add-order");
+    const orderListContent = document.getElementById("order-list-content");
+    const addOrderContent = document.getElementById("add-order-content");
 
+    // Pagination click event
     paginationLinks.forEach(link => {
         link.addEventListener("click", function(event) {
             event.preventDefault();
@@ -28,5 +33,15 @@ document.addEventListener("DOMContentLoaded", function() {
                     console.error("Error fetching data:", error);
                 });
         });
+    });
+    // Tab buttons click events
+    btnOrders.addEventListener("click", function() {
+        orderListContent.style.display = "block";
+        addOrderContent.style.display = "none";
+    });
+
+    btnAddOrder.addEventListener("click", function() {
+        orderListContent.style.display = "none";
+        addOrderContent.style.display = "block";
     });
 });
