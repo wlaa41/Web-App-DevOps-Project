@@ -45,6 +45,9 @@ class Order(Base):
     order_date = Column('Order Date', DateTime)
     shipping_date = Column('Shipping Date', DateTime)
 
+    # Add a new column for Discount Code
+    discount_code = Column('Discount Code', String)
+
 # define routes
 # route to display orders
 @app.route('/')
