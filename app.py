@@ -10,23 +10,17 @@ import os
 app = Flask(__name__)
 
 # database connection 
-server = os.environ["AZURE_SERVER"]
-database = os.environ['AZURE_DATABASE']
-username = os.environ['AZURE_USERNAME']
-password = os.environ['AZURE_PASSWORD']
-driver= os.environ['AZURE_DRIVER']
+database_host = os.environ["DATABASE_HOST"]
+database_port = os.environ["DATABASE_PORT"]
+database_name = os.environ["DATABASE_NAME"]
+database_user = os.environ["DATABASE_USER"]
+database_password = os.environ["DATABASE_PASSWORD"]
 
 # Create the connection string
-connection_string = f'Driver={driver};\
-    Server=tcp:{server},1433;\
-    Database= {database};\
-    Uid={username};\
-    Pwd={password};\
-    Encrypt=yes;\
-    TrustServerCertificate=no;'
+connection_string = f"postgresql://{database_user}:{database_password}@{database_host}:{database_port}/{database_name}"
 
 # Create the engine to connect to the database
-engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(connection_string))
+engine = create_engine(connection_string)
 
 # Create the Session
 Session = sessionmaker(bind=engine)
