@@ -28,7 +28,7 @@ connection_string=f'Driver={driver};\
 
 # Create the engine to connect to the database
 engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(connection_string))
-engine.connect())
+engine.connect()
 
 # Create the Session
 Session = sessionmaker(bind=engine)
