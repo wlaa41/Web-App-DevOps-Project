@@ -15,21 +15,20 @@ database = os.environ['AZURE_DATABASE']
 username = os.environ['AZURE_USERNAME']
 password = os.environ['AZURE_PASSWORD']
 driver= os.environ['AZURE_DRIVER']
-authentication_type= 'ActiveDirectoryPassword'
 
 # Create the connection string
-connection_string = f'Driver={driver};\
+connection_string=f'Driver={driver};\
     Server=tcp:{server},1433;\
-    Database= {database};\
+    Database={database};\
     Uid={username};\
     Pwd={password};\
     Encrypt=yes;\
     TrustServerCertificate=no;\
-    Connection Timeout=30;\
-    Authentication={authentication_type}'
+    Connection Timeout=30;'
 
 # Create the engine to connect to the database
-engine = create_engine(connection_string)
+engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(connection_string))
+engine.connect())
 
 # Create the Session
 Session = sessionmaker(bind=engine)
