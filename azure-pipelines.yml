@@ -13,6 +13,7 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'Docker Hub'
-    repository: 'mayaaiuga/devops-app-test-2:latest'
+    repository: 'mayaaiuga/devops-app-test-2'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
+    tags: 'latest'
