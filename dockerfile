@@ -19,7 +19,6 @@ RUN apt-get update && apt-get install -y \
     # apt-get purge -y --auto-remove wget && \  
     apt-get clean
 
-
 # Install pip and setuptools
 RUN pip install --upgrade pip setuptools
 
