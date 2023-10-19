@@ -10,11 +10,11 @@ import os
 app = Flask(__name__)
 
 # database connection 
-server = os.environ["AZURE_SERVER"]
-database = os.environ['AZURE_DATABASE']
-username = os.environ['AZURE_USERNAME']
-password = os.environ['AZURE_PASSWORD']
-driver= os.environ['AZURE_DRIVER']
+server = 'devops-project-server.database.windows.net'
+database = 'orders-db'
+username = 'maya'
+password = 'AiCore1237'
+driver= '{ODBC Driver 18 for SQL Server}'
 
 # Create the connection string
 connection_string=f'Driver={driver};\
@@ -110,5 +110,4 @@ def add_order():
 
 # run the app
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    app.run(host='0.0.0.0', port=5000, debug=True)
