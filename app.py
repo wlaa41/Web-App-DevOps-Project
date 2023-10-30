@@ -72,6 +72,8 @@ def display_orders():
     # Close the session
     session.close()
 
+    filtered_orders = [order for order in current_page_orders if order.discount_code == "SUMMER"] 
+
     return render_template('orders.html', orders=current_page_orders, page=page, total_pages=total_pages)
 
 # route to add orders

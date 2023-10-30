@@ -27,6 +27,7 @@
                         <th>Product Quantity</th>
                         <th>Order Date</th>
                         <th>Shipping Date</th>
+                        <th>Discount Code</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,6 +41,7 @@
                             <td>{{ order.product_quantity }}</td>
                             <td>{{ order.order_date }}</td>
                             <td>{{ order.shipping_date }}</td>
+                            <td>{{ order.discount_code }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
