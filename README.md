@@ -30,8 +30,12 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 
 ### Prerequisites
 
-- Python 3.x
-- Flask
+For the application to succesfully run, you need to install the following packages:
+
+- flask (version 2.2.2)
+- pyodbc (version 4.0.39)
+- SQLAlchemy (version 2.0.21)
+- werkzeug (version 2.2.3)
 
 ### Usage
 
