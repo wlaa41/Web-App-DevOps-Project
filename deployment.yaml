@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: flask-app-deployment
 spec:
-  replicas: 3  # Adjust the number of replicas as needed
+  replicas: 2  # Adjust the number of replicas as needed
   selector:
     matchLabels:
       app: flask-app
@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: flask-app-container
-        image: mayaaiuga/devops-web-app:latest
+        image: mayaaiuga/test-run-image:latest
         ports:
         - containerPort: 5000  # Expose the same port specified in your Dockerfile
   strategy:
@@ -27,7 +27,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: flask-app-service
+  name: flask-app-services
 spec:
   selector:
     app: flask-app
