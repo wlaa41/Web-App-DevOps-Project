@@ -20,18 +20,18 @@ RUN apt-get update && apt-get install -y \
     apt-get clean
 
 # Install Azure CLI
-RUN apt-get update && \
-    apt-get install -y curl && \
-    curl -sL https://aka.ms/InstallAzureCLIDeb | bash
+#RUN apt-get update && \
+ #   apt-get install -y curl && \
+  #  curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
 # Add Azure CLI to the PATH
-ENV PATH=$PATH:/usr/local/bin
+#ENV PATH=$PATH:/usr/local/bin
 
 # Set environment variables with service principal credentials
-ENV AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
-ENV AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
-ENV AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
-ENV AZURE_TENANT_ID=${AZURE_TENANT_ID}
+##ENV AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+#ENV AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+#ENV AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+#ENV AZURE_TENANT_ID=${AZURE_TENANT_ID}
 
 # Install pip and setuptools
 RUN pip install --upgrade pip setuptools

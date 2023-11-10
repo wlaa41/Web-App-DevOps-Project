@@ -1,13 +1,13 @@
-apiVersion: v1
-kind: Secret
-metadata:
-  name: myapp-secrets
-type: Opaque
-data:
-  AZURE_SUBSCRIPTION_ID: NDEzNTU5MTMtYTViNC00MDc3LTk2MmItMDg3ZTg2ZjllNDRl
-  AZURE_CLIENT_ID: ZjliM2FmNDItNTI0YS00NDA2LWI5ZTEtNTZhNjQ3ZGM0NmRm
-  AZURE_CLIENT_SECRET: bzliOFF+Lm5OSkp3RTBJMXhZWjNUVnJsOExIMUtUUno2V3ZGZGNCZw==
-  AZURE_TENANT_ID: ZTg2YjcxZmYtNDBmYy00NzY3LThlOGMtNTM4NGNjNWM5MGVh
+#apiVersion: v1
+#kind: Secret
+#metadata:
+###  name: myapp-secrets
+#type: Opaque
+#data:
+#  AZURE_SUBSCRIPTION_ID: NDEzNTU5MTMtYTViNC00MDc3LTk2MmItMDg3ZTg2ZjllNDRl
+#  AZURE_CLIENT_ID: ZjliM2FmNDItNTI0YS00NDA2LWI5ZTEtNTZhNjQ3ZGM0NmRm
+#  AZURE_CLIENT_SECRET: bzliOFF+Lm5OSkp3RTBJMXhZWjNUVnJsOExIMUtUUno2V3ZGZGNCZw==
+#  AZURE_TENANT_ID: ZTg2YjcxZmYtNDBmYy00NzY3LThlOGMtNTM4NGNjNWM5MGVh
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -28,27 +28,27 @@ spec:
         image: mayaaiuga/flask-app-sercrets:latest 
         ports:
         - containerPort: 5000  # Expose the same port specified in your Dockerfile
-        env:
-        - name: AZURE_SUBSCRIPTION_ID
-          valueFrom:
-            secretKeyRef:
-              name: myapp-secrets
-              key: AZURE_SUBSCRIPTION_ID
-        - name: AZURE_CLIENT_ID
-          valueFrom:
-            secretKeyRef:
-              name: myapp-secrets
-              key: AZURE_CLIENT_ID
-        - name: AZURE_CLIENT_SECRET
-          valueFrom:
-            secretKeyRef:
-              name: myapp-secrets
-              key: AZURE_CLIENT_SECRET
-        - name: AZURE_TENANT_ID
-          valueFrom:
-            secretKeyRef:
-              name: myapp-secrets
-              key: AZURE_TENANT_ID
+        #env:
+        #- name: AZURE_SUBSCRIPTION_ID
+         # valueFrom:
+          #  secretKeyRef:
+           #   name: myapp-secrets
+            #  key: AZURE_SUBSCRIPTION_ID
+        #- name: AZURE_CLIENT_ID
+         # valueFrom:
+          #  secretKeyRef:
+           #   name: myapp-secrets
+            #  key: AZURE_CLIENT_ID
+        #- name: AZURE_CLIENT_SECRET
+         # valueFrom:
+          #  secretKeyRef:
+           #   name: myapp-secrets
+            #  key: AZURE_CLIENT_SECRET
+        #- name: AZURE_TENANT_ID
+         # valueFrom:
+          #  secretKeyRef:
+           #   name: myapp-secrets
+            #  key: AZURE_TENANT_ID
   strategy:
     type: RollingUpdate
     rollingUpdate:
