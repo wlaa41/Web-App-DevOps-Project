@@ -1,0 +1,72 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C++/C/Objective-C
+*.o
+*.d
+*.exe
+*.dll
+*.so
+*.dylib
+*.out
+
+# Java artifacts
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.idea/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Virtual environments
+env/
+venv/
+aicore/
+ENV/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Node modules (if using JavaScript/TypeScript)
+node_modules/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Log files
+*.log
+
+# Other common directories
+build/
+dist/
+.sass-cache/
+node_modules/
+bower_components/
+aicore/
+
+
+# Backup files
+*~
+*.swp
+*.backup
+*.bak
+*.tmp
+*.temp
