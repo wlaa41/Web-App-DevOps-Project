@@ -7,8 +7,11 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Technology Stack](#technology-stack)
+- [Reverted Features](#reverted-features)
 - [Contributors](#contributors)
 - [License](#license)
+
+
 
 ## Features
 
@@ -52,6 +55,33 @@ To run the application, you simply need to run the `app.py` script in this repos
 - **Frontend:** The user interface is designed using HTML, CSS, and JavaScript to ensure a smooth and intuitive user experience.
 
 - **Database:** The application employs an Azure SQL Database as its database system to store order-related data.
+
+## Reverted Features: Delivery Date Column
+
+### Delivery Date Column
+#### Overview
+The `delivery_date` feature, aimed at tracking order delivery dates, was added and later reverted. This documentation provides detailed implementation and potential usage for future reference.
+
+#### Developer Guide
+
+- **Branch Name**: `revert-delivery-date`
+- **Commit Hash for Revert**: The feature was reverted in commit `9da61682fe08c6e7d7827f4fb476617c9f49a053` on the `revert-delivery-date` branch.
+
+##### Database Model
+- **Model Changes**: Added a `delivery_date` column to the `Order` class in `app.py`.
+
+##### Backend Changes
+- **Route Update**: Modified the `/add_order` route to include `delivery_date` processing.
+
+##### Frontend Adjustments
+- **Form Update**: Updated `order.html` to incorporate a `delivery_date` field for adding and displaying orders.
+
+#### User Guide
+
+- **Placing Orders**: Users had the option to specify delivery dates for new orders via a dedicated field.
+- **Viewing Orders**: Delivery dates were displayed in the order list, alongside other essential order details.
+
+This feature has been documented with branch and commit details for potential reintegration or reference in the future.
 
 ## Contributors 
 
