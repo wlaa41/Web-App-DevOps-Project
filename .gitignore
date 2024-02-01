@@ -70,3 +70,19 @@ aicore/
 *.bak
 *.tmp
 *.temp
+
+# Adding for dockerfile 
+# Docker ignore list
+docker-compose*.yml
+*.dockerignore
+*dockerfile
+Dockerfile
+**/.dockerenv
+**/.env
+
+# Ignore local Docker volumes
+volumes/
+
+# Ignore build outputs
+build/
+dist/
