@@ -7,9 +7,11 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Technology Stack](#technology-stack)
-- [Reverted Features](#reverted-features)
+- [Reverted Features](#rSeverted-features)
+- [Containerization](#containerization)
 - [Contributors](#contributors)
 - [License](#license)
+
 
 
 
@@ -82,6 +84,39 @@ The `delivery_date` feature, aimed at tracking order delivery dates, was added a
 - **Viewing Orders**: Delivery dates were displayed in the order list, alongside other essential order details.
 
 This feature has been documented with branch and commit details for potential reintegration or reference in the future.
+
+## Containerization
+
+### Containerization Process
+
+#### Building the Dockerfile
+
+1. **Dockerfile Overview**: The provided Dockerfile is a set of instructions for Docker to automatically build a container image for our web application.
+
+2. **Base Image**: We start with `python:3.8-slim` as our base image, chosen for its balance between size and utility, providing a Python environment with minimal overhead.
+
+3. **Working Directory**: Setting the working directory to `/app` ensures that all subsequent commands run in this location within the container.
+
+4. **Dependencies**: Essential system dependencies are installed using `apt-get` to ensure that our application has all the necessary libraries and tools, such as `gcc` for compiling and `unixodbc-dev` for database connectivity.
+
+5. **Python Environment**: We upgrade `pip` and install the required Python packages as specified in `requirements.txt`, ensuring that the Python environment is prepared with the dependencies our application needs.
+
+6. **Final Steps**: We set the command to run the application using `CMD` and document the port that our application will be served on using `EXPOSE`.
+
+### Docker Commands
+
+#### Usage
+
+- **Building the Image**: `docker build -t webapp-devops .` to create an image from the Dockerfile in the current directory.
+- **Running a Container**: `docker run -p 5000:5000 webapp-devops` to start a container and expose it on port 5000.
+- **Tagging the Image**: `docker tag webapp-devops walaab/aicore_finalproject` to assign a tag to the image for pushing to Docker Hub.
+- **Pushing to Docker Hub**: `docker push walaab/aicore_finalproject` to upload the tagged image to Docker Hub.
+
+### Image Information
+
+The Docker image for the Web-App-DevOps-Project includes all the dependencies and configurations required to run the web application in a containerized environment. The image is named `webapp-devops` and is tagged as `walaab/aicore_finalproject` for version control and distribution through Docker Hub.
+
+
 
 ## Contributors 
 
