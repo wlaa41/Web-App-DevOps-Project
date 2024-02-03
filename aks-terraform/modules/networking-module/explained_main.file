@@ -1,0 +1,242 @@
+## Resource block to define an Azure Resource Group for AKS networking resources.
+# Syntax: resource "<provider>_<resource_type>" "<local_name>" { ... }
+# Use case: Organizing all AKS-related networking resources in a single logical group for easier management and cost tracking.
+# Alt value: For non-AKS resources or different environments, use separate resource groups with relevant names, e.g., "rg-application-prod".
+# Required: The entire block is needed to ensure proper security measures are in place for AKS.
+resource "azurerm_resource_group" "aks_rg" {
+  # Sets the name of the Resource Group, using a variable for dynamic assignment.
+  # Syntax: attribute_name = value
+  # Use case: Dynamically naming resource groups based on variables allows for reusable templates across environments or projects.
+  # Alt value: Directly specify the name, e.g., name = "my-custom-rg-name".
+  # Required: The 'name' attribute specifies the NSG's name within Azure, crucial for identifying the NSG.
+
+  name     = var.resource_group_name
+  # Specifies the geographic location where the Resource Group will be created.
+  # Syntax: attribute_name = value
+  # Use case: Placing resources geographically closer to users or other services to reduce latency and comply with data residency requirements.
+  # Alt value: Use different Azure regions as needed, e.g., location = "West Europe".
+  # Required: 'location' determines where the NSG is geographically deployed in Azure.
+
+  location = var.location
+
+   # Attaches metadata tags to the resource for identification and management.
+  # Syntax: tags = { Key = "Value", ... }
+  # Use case: Tagging resources with their purpose, environment, or ownership for filtering, billing, or governance.
+  # Alt value: Include environment or project-specific tags, e.g., "Environment" = "Development".
+  tags  = {
+    "Purpose" = "AKS Networking"
+  }
+}
+
+# Creates an Azure Virtual Network within which the AKS cluster and its components will communicate.
+# This setup supports AKS's networking requirements, providing a dedicated space for cluster communication and resource organization.
+# Required: Yes, for defining a dedicated network space.
+resource "azurerm_virtual_network" "aks_vnet" {
+  # Names the Virtual Network, explicitly indicating its purpose for AKS.
+  # A clear naming convention aids in resource identification and management.
+  # VNet Name | Required: Yes. Usage: Identifies the VNet within Azure.
+  # Use case: Isolating AKS cluster networking. Alt: "aks-vnet-test" for testing.
+  name                = "aks-vnet"
+  # Defines the IP address range available in the VNet, crucial for subnetting and network segmentation.
+  # This range should be large enough to accommodate all expected AKS nodes and services without overlap with other networks.
+  # Address Space | Required: Yes. Usage: Defines the IP range for the VNet.
+  # Use case: Network segmentation for AKS. Alt: ["10.1.0.0/16"] for larger networks.
+  address_space      = var.vnet_address_space
+  # Aligns the VNet's location with the Resource Group's location, ensuring geographical consistency and compliance.
+  # Location | Required: Inherits from the resource group for consistency.
+  # Use case: Ensuring resources are co-located to minimize latency.
+  location            = azurerm_resource_group.aks_rg.location
+  # Associates the VNet with the previously defined Resource Group, establishing a clear organizational structure.
+  # Resource Group Name | Required: Specifies the parent resource group.
+  # Use case: Organizational structure within Azure. Ensures VNet is associated correctly.
+  resource_group_name = azurerm_resource_group.aks_rg.name
+
+  # Additional metadata for categorizing and identifying the VNet's purpose within the AKS ecosystem.
+  tags = {
+    "Environment" = "Kubernetes"
+  }
+}
+
+# Subnet for AKS control plane components, providing a dedicated network space for Kubernetes master nodes.
+# This segregation enhances security and network efficiency by isolating control traffic.
+resource "azurerm_subnet" "control_plane_subnet" {
+  # Subnet name is explicitly defined for clarity.
+  name                 = "control-plane-subnet"
+  # Links the subnet to the same Resource Group as the VNet.
+  # Links subnet to the resource group and VNet | Required: Yes.
+  # Use case: Ensures proper network structure and connectivity within AKS.
+  resource_group_name  = azurerm_resource_group.aks_rg.name
+  # Indicates which VNet the subnet belongs to.
+  virtual_network_name = azurerm_virtual_network.aks_vnet.name
+  # IP address range for the subnet, must be within the VNet's address space.
+  # Address Prefixes | Required: Yes. Defines the IP range for the subnet.
+  # Use case: Network segmentation within AKS. Alt: ["10.0.3.0/24"] for different network segments.
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+# Dedicated subnet for AKS worker nodes where application containers will be deployed.
+# Worker nodes host the actual application workloads, requiring connectivity to each other and possibly the internet.
+# Required: Yes, ensures worker nodes have a dedicated network space.
+resource "azurerm_subnet" "worker_node_subnet" {
+  # Names the subnet for easier identification.
+  name                 = "worker-node-subnet"
+  # Ensures the subnet is created within the same Resource Group.
+  resource_group_name  = azurerm_resource_group.aks_rg.name
+  # Associates the subnet with the earlier defined VNet.
+  virtual_network_name = azurerm_virtual_network.aks_vnet.name
+  # Defines the IP address range for the subnet, allocated for worker nodes.
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+# Network Security Group (NSG) for defining security rules specific to the AKS cluster.
+# NSGs are crucial for enforcing network security policies, such as allowing or denying specific traffic to or from the AKS cluster.
+# Required: Yes, for defining and enforcing network security policies.
+
+resource "azurerm_network_security_group" "aks_nsg" {
+  # The name for the NSG.
+  name                = "aks-nsg"
+  # NSG's location matches that of the Resource Group.
+  location            = azurerm_resource_group.aks_rg.location
+  # Links the NSG to the AKS Resource Group.
+  resource_group_name = azurerm_resource_group.aks_rg.name
+
+  # Security rule within the NSG to allow traffic to the Kubernetes API server.
+  # Required: Yes, to ensure secure access to the API server. Alt: Customize ports/rules based on specific needs.
+security_rule {
+    # Rule Name | Required: Unique identifier within the NSG.
+    # Syntax: name = "rule_name"
+    # Use case: Allowing Kubernetes API server communications.
+    # Alt: "ssh-access-rule" for SSH access.
+    name = "kube-apiserver-rule"
+
+    # Determines the order of rule evaluation, with lower numbers evaluated first.
+    # Priority | Required: Determines rule evaluation order.
+    # Syntax: priority = number
+    # Use case: Ensuring API server access has precedence over less critical rules.
+    # Alt: 200 for less critical rules.
+    priority = 100
+    
+    # Direction | Required: Traffic direction, inbound to AKS.
+    # Syntax: direction = "Inbound" or "Outbound"
+    # Use case: Inbound for accessing the Kubernetes API server from external sources.
+    # Alt: "Outbound" for rules managing egress traffic from AKS.
+    direction = "Inbound"
+    
+    # Access | Required: Specifies if the rule allows or denies traffic.
+    # Syntax: access = "Allow" or "Deny"
+    # Use case: Allowing traffic to reach the Kubernetes API server.
+    # Alt: "Deny" for unauthorized sources.
+    access = "Allow"
+    
+    # Specifies the protocol to which the rule applies.
+    # Protocol | Required: The traffic protocol this rule applies to.
+    # Syntax: protocol = "Tcp", "Udp", or "*"
+    # Use case: TCP for Kubernetes API server communication.
+    # Alt: "*" for all protocols if no specific protocol is required.
+    protocol = "Tcp"
+    
+    # Source Port Range | Required: Specifies the originating port(s) for traffic.
+    # Syntax: source_port_range = "port" or "*"
+    # Use case: "*" Applies to traffic from any source port., typical for ingress access.
+    # Alt: Specific port numbers if source port restriction is needed.
+    source_port_range = "*"
+    
+    # Destination Port Range | Required: The port on which the Kubernetes API server listens.
+    # Syntax: destination_port_range = "port_number"
+    # Use case: "6443" for Kubernetes API server default port.
+    # Alt: Other port numbers for different services.
+    destination_port_range = "6443"
+    
+    # Restricts traffic source to your public IP.
+    # Source Address Prefix | Required: Defines the source IP addresses for the rule.
+    # Syntax: source_address_prefix = "IP_address/CIDR" or "*"
+    # Use case: Restricting access to specific IPs for security.
+    # Alt: "*" for allowing traffic from any source.
+    source_address_prefix = "<Your_Public_IP>/32"
+    
+    # "*" Applies to traffic destined for any address within the NSG.
+    # Destination Address Prefix | Optional: Targets traffic to specific IP addresses in AKS.
+    # Syntax: destination_address_prefix = "IP_address/CIDR" or "*"
+    # Use case: Typically "*", as destination within AKS is managed by Kubernetes.#
+    # Alt: Specify specific AKS node IPs if needed for direct access.
+    destination_address_prefix = "*"
+  }
+
+  # Allows traffic to the Kubernetes API server, essential for cluster management and operations.
+  # Required: Optional, based on whether SSH access is needed for management.
+  # Security rule for allowing SSH access to the AKS cluster nodes.
+  # This rule is crucial for administrative tasks that require secure shell access.
+  security_rule {
+    # Rule Name | Required: Unique identifier within the NSG.
+    # Syntax: name = "rule_name"
+    # Use case: Securing and allowing SSH access for remote management.
+    # Alt: "api-access-rule" for API server access.
+    name                       = "ssh-rule"
+
+    # 101 Priority just after the kube-apiserver-rule.
+    # Priority | Required: Determines rule evaluation order.
+    # Syntax: priority = number
+    # Use case: Setting SSH access as a high-priority rule but after the Kubernetes API server access.
+    # Alt: 102 or higher for less critical rules.
+    priority                   = 101  
+
+    #"Inbound" Rule applies to incoming traffic.
+    # Direction | Required: Traffic direction, specifying rule application.
+    # Syntax: direction = "Inbound" or "Outbound"
+    # Use case: Inbound for allowing external SSH access to the cluster.
+    # Alt: "Outbound" for rules related to traffic leaving the AKS cluster.
+    direction                  = "Inbound" 
+    
+    # "Allow"  Permits the traffic.
+    # Access | Required: Determines if the rule permits or blocks traffic.
+    # Syntax: access = "Allow" or "Deny"
+    # Use case: Permitting SSH traffic for cluster management tasks.
+    # Alt: "Deny" to block unwanted SSH access from specific sources.
+    access                     = "Allow"  
+    
+    # "Tcp"  SSH uses TCP protocol.
+    # Protocol | Required: Specifies the protocol type for the rule.
+    # Syntax: protocol = "Tcp", "Udp", or "*"
+    # Use case: TCP is used for SSH protocol communications.
+    # Alt: "*" could be used for rules not specific to a single protocol.
+    protocol                   = "Tcp"  
+    
+    # Source Port Range | Required: Defines the originating ports for the traffic.
+    # Syntax: source_port_range = "port" or "*"
+    # Use case: "*" allows SSH from any source port, which is standard for SSH.
+    # Alt: Specifying a particular port if SSH traffic originates from a known port.
+    source_port_range          = "*"  
+
+    # Destination Port Range | Required: The specific port targeted by the rule.
+    # Syntax: destination_port_range = "port_number"
+    # Use case: "22" for standard SSH port.
+    # Alt: A different port if SSH is configured to listen on a non-standard port.
+    destination_port_range     = "22" # SSH port
+
+    # Source Address Prefix | Required: Limits the source IP addresses that can initiate traffic.
+    # Syntax: source_address_prefix = "IP_address/CIDR" or "*"
+    # Use case: Restricting SSH access to a specific public IP for enhanced security.
+    # Alt: "*" for unrestricted access, though not recommended for SSH.
+    source_address_prefix      = "<Your_Public_IP>/32" 
+
+    # Destination Address Prefix | Optional: Specifies the target IP addresses within the NSG.
+    # Syntax: destination_address_prefix = "IP_address/CIDR" or "*"
+    # Use case: "*" allows SSH traffic to any destination within the NSG, suitable for AKS clusters where node IPs can change.
+    # Alt: Specifying AKS node IPs directly, though less dynamic and harder to maintain.
+    destination_address_prefix = "*"
+
+    # Description | Optional: Provides additional context about the rule.
+    # Use case: Documenting the purpose of SSH access for future reference.
+    description                = "Allow inbound SSH traffic from a specific IP for management"
+  }
+
+
+  # Tags for organizing and categorizing the NSG.
+  # Optional: Enhances resource management within Azure, especially for billing and governance
+  # Tagging NSG for clarity and management
+  # Tags for NSG | Optional: Useful for categorization and management.
+  # Use case: Identifying the purpose and usage of NSG. Alt: {"ManagedBy" = "Ops Team"} for operational clarity.
+  tags = {
+    "Usage" = "AKS Security"
+  }
+}

@@ -1,0 +1,54 @@
+# Output: VNet ID
+# Required: Yes - for inter-module communication and resource referencing.
+# Connection and Needs: Used by AKS cluster module to establish networking context.
+# Use Case: Referencing the VNet within the AKS cluster module for network configurations.
+# Syntax: output "vnet_id" { ... }
+# Alt Value: None - This is a unique identifier and does not have an alternative.
+output "vnet_id" {
+  description = "The ID of the VNet created for the AKS cluster."
+  value       = azurerm_virtual_network.aks_vnet.id
+}
+
+# Output: Control Plane Subnet ID
+# Required: Yes - to define the network placement of control plane components.
+# Connection and Needs: Specifies the subnet for AKS control plane within the networking module.
+# Use Case: Placement of control plane components in a designated subnet for network isolation and order.
+# Syntax: output "control_plane_subnet_id" { ... }
+# Alt Value: None - Specific to the subnet created for the control plane.
+output "control_plane_subnet_id" {
+  description = "The ID of the subnet created for the AKS control plane."
+  value       = azurerm_subnet.control_plane_subnet.id
+}
+
+# Output: Worker Node Subnet ID
+# Required: Yes - to define the network scope for worker nodes.
+# Connection and Needs: Specifies the subnet for AKS worker nodes within the networking module.
+# Use Case: Ensuring worker nodes are deployed within the specified network segment for proper traffic management.
+# Syntax: output "worker_node_subnet_id" { ... }
+# Alt Value: None - Specific to the subnet created for the worker nodes.
+output "worker_node_subnet_id" {
+  description = "The ID of the subnet created for the AKS worker nodes."
+  value       = azurerm_subnet.worker_node_subnet.id
+}
+
+# Output: Networking Resource Group Name
+# Required: Yes - for consistent resource allocation and management.
+# Connection and Needs: Allows cluster module to align with networking resources in the same group.
+# Use Case: Managing Azure resources effectively by maintaining them within the same resource group.
+# Syntax: output "networking_resource_group_name" { ... }
+# Alt Value: None - The name of the resource group is unique to the deployment.
+output "networking_resource_group_name" {
+  description = "The name of the resource group where networking resources are provisioned."
+  value       = azurerm_resource_group.aks_rg.name
+}
+
+# Output: NSG ID
+# Required: Yes - for securing the AKS cluster with the appropriate NSG rules.
+# Connection and Needs: Connects the NSG to the AKS cluster for rule enforcement.
+# Use Case: Associating the NSG with the AKS cluster to manage traffic and security rules.
+# Syntax: output "aks_nsg_id" { ... }
+# Alt Value: None - The ID is a unique identifier for the NSG.
+output "aks_nsg_id" {
+  description = "The ID of the Network Security Group associated with the AKS cluster."
+  value       = azurerm_network_security_group.aks_nsg.id
+}
