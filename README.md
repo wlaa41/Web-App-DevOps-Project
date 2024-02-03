@@ -9,11 +9,15 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 - [Technology Stack](#technology-stack)
 - [Reverted Features](#rSeverted-features)
 - [Containerization](#containerization)
-- [Infrastructure as Code](#infrastructure as code)
+- [Containerization](#containerization)
+- [Infrastructure as Code](#infrastructure-as-code)
+- [AKS Cluster Provisioning with Terraform
+](#aks-cluster-provisioning-with-terraform
+)
 - [Contributors](#contributors)
 - [License](#license)
 
-
+AKS Cluster Provisioning with Terraform
 
 
 ## Features
@@ -117,7 +121,9 @@ This feature has been documented with branch and commit details for potential re
 
 The Docker image for the Web-App-DevOps-Project includes all the dependencies and configurations required to run the web application in a containerized environment. The image is named `webapp-devops` and is tagged as `walaab/aicore_finalproject` for version control and distribution through Docker Hub.
 
-## Infrastructure as Code: Networking Setup
+## Infrastructure as Code
+
+#### Networking Setup
 
 The foundation of our e-commerce application's infrastructure on Azure is laid out using Terraform, an Infrastructure as Code (IaC) tool, which enables us to define, provision, and manage the cloud infrastructure using configuration files. Below are the steps and components involved in setting up the networking infrastructure for our application.
 
@@ -198,9 +204,62 @@ Before proceeding, ensure that you have the Azure CLI installed and configured w
 
 By following these steps, you will have a secure and scalable network infrastructure on Azure, ready to support the demands of your e-commerce application.
 
+## AKS Cluster Provisioning with Terraform
+
+This section of the README outlines the process of provisioning an AKS cluster using Terraform as part of our e-commerce infrastructure. We employ Infrastructure as Code (IaC) to ensure that our infrastructure provisioning is repeatable, consistent, and versioned.
+
+### Provisioning Steps
+
+1. **Define the Resource Group**: The `azurerm_resource_group` resource is used to create a logical container for our AKS-related networking resources, which aids in organization and cost tracking.
+
+2. **Create the Virtual Network (VNet)**: Using the `azurerm_virtual_network` resource, we define the VNet where our AKS cluster will reside. This network is crucial for the internal communication between services.
+
+3. **Set Up Subnets**: Subnets are defined within the VNet using `azurerm_subnet` resources. We create separate subnets for the control plane and worker nodes, providing a structured network space with improved security.
+
+4. **Network Security Group (NSG) Configuration**: An NSG named `aks-nsg` is created with `azurerm_network_security_group` to define network security rules that control inbound and outbound traffic.
+
+5. **Define Security Rules**: Specific rules, such as `kube-apiserver-rule` and `ssh-rule`, are defined using `azurerm_network_security_rule` resources to govern access to the AKS cluster.
+
+6. **Output Variable Declaration**: Output variables like `vnet_id` and `aks_cluster_id` are declared to expose essential information about the provisioned resources.
+
+7. **Initialize the Terraform Configuration**: Run `terraform init` within the `aks-cluster-module` directory to prepare Terraform for operation.
+
+8. **Plan the Deployment**: Execute `terraform plan` to review the actions Terraform will perform based on the configuration files.
+
+9. **Apply the Configuration**: Run `terraform apply` to create the defined resources on Azure.
+
+## Input Variables
+
+- `resource_group_name`: The name for the Azure Resource Group.
+- `location`: The Azure region where the resources will be deployed.
+- `vnet_address_space`: The address space for the VNet.
+- `control_plane_subnet_id`: The ID for the control plane's subnet.
+- `worker_node_subnet_id`: The ID for the worker nodes' subnet.
+
+## Output Variables
+
+- `vnet_id`: The ID of the created VNet.
+- `aks_cluster_id`: The ID of the provisioned AKS cluster.
+- `aks_kubeconfig`: The kubeconfig file for managing the AKS cluster.
+
+These variables are crucial for the connectivity and management of the AKS cluster, which underpins our e-commerce platform's operations.
+
+## Pushing to GitHub
+
+To ensure that our IaC code is versioned and changes are tracked, we push our latest Terraform configuration to GitHub using the following commands:
+
+```sh
+git add .
+git commit -m "Add AKS cluster provisioning with Terraform"
+git push origin main
+```
+
+Replace `main` with the name of the branch you are pushing to if it's not the main branch.
+
 
 ## Contributors 
 
+- [Walaa Will]([https://github.com/yourusername](https://github.com/wlaa41))
 - [Maya Iuga]([https://github.com/yourusername](https://github.com/maya-a-iuga))
 
 ## License
