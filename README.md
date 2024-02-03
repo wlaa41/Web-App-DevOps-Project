@@ -9,6 +9,7 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 - [Technology Stack](#technology-stack)
 - [Reverted Features](#rSeverted-features)
 - [Containerization](#containerization)
+- [Infrastructure as Code](#infrastructure as code)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -116,6 +117,86 @@ This feature has been documented with branch and commit details for potential re
 
 The Docker image for the Web-App-DevOps-Project includes all the dependencies and configurations required to run the web application in a containerized environment. The image is named `webapp-devops` and is tagged as `walaab/aicore_finalproject` for version control and distribution through Docker Hub.
 
+## Infrastructure as Code: Networking Setup
+
+The foundation of our e-commerce application's infrastructure on Azure is laid out using Terraform, an Infrastructure as Code (IaC) tool, which enables us to define, provision, and manage the cloud infrastructure using configuration files. Below are the steps and components involved in setting up the networking infrastructure for our application.
+
+### Networking with Terraform on Azure
+
+#### Prerequisites
+
+Before proceeding, ensure that you have the Azure CLI installed and configured with the necessary permissions to create and manage Azure resources.
+
+### Resource Group
+
+- **File**: `main.tf`
+- **Resource**: `azurerm_resource_group`
+- **Purpose**: Serves as a container that holds related resources for the e-commerce application.
+- **Importance**: Essential (1)
+- **Dependencies**: All networking resources are dependent on the resource group.
+- **Variables**:
+  - `resource_group_name`: Name for the Azure Resource Group.
+  - `location`: Geographic location for the deployment of resources.
+
+### Virtual Network (VNet)
+
+- **File**: `main.tf`
+- **Resource**: `azurerm_virtual_network`
+- **Purpose**: Provides a private network for the e-commerce application where resources such as VMs and databases can securely communicate.
+- **Importance**: Essential (1)
+- **Dependencies**: Must be created within the resource group defined above.
+- **Variables**:
+  - `vnet_address_space`: Defines the IP address range for the VNet.
+
+### Subnets
+
+- **File**: `main.tf`
+- **Resources**: `azurerm_subnet`
+  - **control_plane_subnet**: Dedicated subnet for the control plane components, ensuring isolated and secure management operations.
+  - **worker_node_subnet**: Dedicated subnet for the worker nodes where the application components are deployed.
+- **Purpose**: Segregates the network for organizational and security purposes.
+- **Importance**: Essential (1)
+- **Dependencies**: Depends on the virtual network.
+
+### Network Security Group (NSG)
+
+- **File**: `main.tf`
+- **Resource**: `azurerm_network_security_group`
+- **Purpose**: Defines security rules for the network, controlling inbound and outbound traffic to VMs and services.
+- **Importance**: Essential (1)
+- **Dependencies**: Tied to the subnets and must align with the overall security posture.
+- **Security Rules**:
+  - **kube-apiserver-rule**: Allows traffic to the Kubernetes API server.
+  - **ssh-rule**: Permits SSH access to the cluster for remote management.
+
+### Output Variables
+
+- **File**: `outputs.tf`
+- **Purpose**: Outputs the IDs and names of the created resources, which are necessary for referencing these resources in other parts of the Terraform configuration or for external use.
+- **Importance**: High (2)
+- **Details**:
+  - `vnet_id`: The ID of the created VNet.
+  - `control_plane_subnet_id`: The ID of the control plane subnet.
+  - `worker_node_subnet_id`: The ID of the worker node subnet.
+  - `networking_resource_group_name`: The name of the resource group where networking resources are provisioned.
+  - `aks_nsg_id`: The ID of the Network Security Group.
+
+### Input Variables
+
+- **File**: `variables.tf`
+- **Purpose**: Allows customization of the networking module by defining variables that can be passed to the Terraform configuration.
+- **Importance**: High (2)
+- **Details**: Includes descriptions and default values for the resource group name, location, and VNet address space.
+
+## Steps to Provision the Networking Infrastructure
+
+1. **Initialization**: Run `terraform init` in the root directory to initialize the Terraform workspace.
+2. **Configuration**: Update the `terraform.tfvars` with the desired values for the input variables.
+3. **Planning**: Execute `terraform plan` to review the proposed changes to your infrastructure.
+4. **Application**: Apply the configuration with `terraform apply` to create the networking infrastructure.
+5. **Validation**: Use the output variables to validate the creation of the networking components.
+
+By following these steps, you will have a secure and scalable network infrastructure on Azure, ready to support the demands of your e-commerce application.
 
 
 ## Contributors 
