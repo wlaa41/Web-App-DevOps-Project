@@ -1,4 +1,3 @@
-
 resource "azurerm_resource_group" "aks_rg" {
 
   name     = var.resource_group_name
@@ -37,32 +36,38 @@ resource "azurerm_network_security_group" "aks_nsg" {
   location            = azurerm_resource_group.aks_rg.location
   resource_group_name = azurerm_resource_group.aks_rg.name
 
-  security_rule {
-    name                       = "kube-apiserver-rule"
-    priority                   = 100  
-    direction                  = "Inbound"  
-    access                     = "Allow"  
-    protocol                   = "Tcp"  
-    source_port_range          = "*"  
-    destination_port_range     = "6443"  
-    source_address_prefix      = "<The_Public_IP>/32"  # To be replaced with the public IP
-    destination_address_prefix = "*"  
-  }
-
-  security_rule {
-    name                       = "ssh-rule"
-    priority                   = 101  
-    direction                  = "Inbound"  
-    access                     = "Allow"  
-    protocol                   = "Tcp"  
-    source_port_range          = "*"  
-    destination_port_range     = "22"   
-    source_address_prefix      = "<The_Public_IP>/32"  # To be replaced with the public IP
-    destination_address_prefix = "*"
-    description                = "Allow inbound SSH traffic from a specific IP for management"
-  }
-
   tags = {
     "Usage" = "AKS Security"
   }
+}
+
+# Separate resource for the Kubernetes API server rule
+resource "azurerm_network_security_rule" "kube_apiserver_rule" {
+  name                        = "kube-apiserver-rule"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "6443"
+  source_address_prefix       = "<The_Public_IP>/32" # Replace with your public IP
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.aks_nsg.name
+  resource_group_name         = azurerm_resource_group.aks_rg.name
+}
+
+# Separate resource for the SSH rule
+resource "azurerm_network_security_rule" "ssh_rule" {
+  name                        = "ssh-rule"
+  priority                    = 101
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "<The_Public_IP>/32" # Replace with your public IP
+  destination_address_prefix  = "*"
+  description                 = "Allow inbound SSH traffic from a specific IP for management"
+  network_security_group_name = azurerm_network_security_group.aks_nsg.name
+  resource_group_name         = azurerm_resource_group.aks_rg.name
 }

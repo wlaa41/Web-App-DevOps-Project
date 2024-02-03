@@ -1,0 +1,102 @@
+resource "azurerm_kubernetes_cluster" "aks" {
+  # Name of the AKS cluster, a human-readable identifier crucial for distinguishing this resource.
+  # In the e-commerce ecosystem, it helps in identifying the specific Kubernetes cluster running the shopping platform.
+  # Syntax: name = "value"
+  # Use case: Assigning a unique name for each cluster environment, like "ecommerce-prod-cluster".
+  # Importance: 1 - Critical for deployment and management, as AKS clusters must be uniquely named within an Azure region.
+  # Alt value: Using a different naming convention for non-production environments, such as "ecommerce-dev-cluster".
+  name                = var.aks_cluster_name
+
+  # Location for the AKS cluster deployment, dictating the data center region for the resources.
+  # For an e-commerce platform, this affects latency for customers and can be crucial for compliance with data laws.
+  # Syntax: location = "value"
+  # Use case: Setting the location to the nearest region to the customer base to reduce latency.
+  # Importance: 1 - A primary factor in performance and legal compliance, with no alternative to omitting a location.
+  # Alt value: Choosing an alternative region closer to a different segment of your user base, like "West US".
+  location            = var.cluster_location
+
+  # DNS prefix used to create a fully qualified domain name (FQDN) for the AKS cluster.
+  # This is important for network routing and SSL, acting as the public-facing URL component for the cluster.
+  # Syntax: dns_prefix = "value"
+  # Use case: A DNS prefix that reflects the e-commerce service, such as "ecommerce-shop".
+  # Importance: 2 - High due to its visibility to users and role in SSL, though there is flexibility in choice.
+  # Alt value: A different prefix for staging environments, like "staging-ecommerce-shop".
+  dns_prefix          = var.dns_prefix
+
+  # The specific version of Kubernetes to deploy for the AKS cluster, affecting features and security.
+  # For e-commerce, choosing a stable, supported version ensures reliable operation of the shopping platform.
+  # Syntax: kubernetes_version = "value"
+  # Use case: Aligning with the latest supported release or a version known for stability.
+  # Importance: 2 - Significant for the cluster's capability and security; however, it does have some flexibility.
+  # Alt value: An older version if certain workloads require it, or if you're migrating and need version consistency.
+  kubernetes_version  = var.kubernetes_version
+
+  # The Azure Resource Group under which the AKS cluster is categorized.
+  # It's part of the bigger puzzle, crucial for organizing resources in Azure for the e-commerce platform.
+  # Syntax: resource_group_name = "value"
+  # Use case: Creating a clear, logical grouping of all related e-commerce resources for better management.
+  # Importance: 1 - Essential for resource organization in Azure, no alternative for a logical grouping.
+  # Alt value: If managing multiple environments, use a specific resource group like "ecommerce-dev-rg" for development.
+  resource_group_name = var.resource_group_name
+
+  default_node_pool {
+
+    name       = "default"
+
+  # Node count is the number of virtual machines in the node pool. It determines the cluster's ability to handle workloads.
+  # For an e-commerce site, this impacts the ability to handle customer traffic and transaction volume.
+  # Syntax: node_count = number
+  # Use case: Scaling the number of nodes according to the expected traffic, especially during peak shopping periods.
+  # Importance: 2 - It's important for scalability and reliability but adjustable as per demand.
+  # Alt value: Start with a smaller number like 1 or 2 in a dev/test environment or scale up as needed for production loads.
+  node_count = 1
+  
+  # Defines the size of the VMs in the node pool. "Standard_DS2_v2" is an Azure VM size that provides a balance of compute, memory, and I/O.
+  # In e-commerce, this selection impacts the performance and cost-efficiency of serving web pages and handling transactions.
+  # Syntax: vm_size = "size"
+  # Use case: Selecting a VM size that matches the expected load from the e-commerce application.
+  # Importance: 2 - The VM size is critical for performance and cost but can be adjusted based on load patterns.
+  # Alt value: For larger e-commerce sites, a more powerful VM size like "Standard_D4s_v3" could be more appropriate.
+  vm_size    = "Standard_DS2_v2"  # This line and the preceding comment block can be repeated for other attributes.
+
+  # VNet subnet ID connects the AKS cluster to a specific subnet in your virtual network, isolating and securing network traffic.
+  # In the context of e-commerce, this is where the application pods will be placed, ensuring secure and efficient networking.
+  # Syntax: vnet_subnet_id = "subnet_id"
+  # Use case: Assigning a subnet designed for the application layer, which may contain web servers and backend services.
+  # Importance: 2 - High for network design and security, allowing the subdivision of network architecture within Azure.
+  # Alt value: For complex setups, you might have multiple subnets for different purposes like "frontend" and "backend" subnets.
+  vnet_subnet_id = var.worker_node_subnet_id
+}
+
+# Service principal block specifies the Azure AD application to use for Kubernetes role-based access control (RBAC).
+# In e-commerce, this is critical for defining what services or users can do within the AKS cluster.
+# Syntax: service_principal { ... }
+# Use case: Granting the AKS cluster permissions to access other Azure services like storage and databases.
+# Importance: 1 - Essential for AKS to interact with Azure resources securely and effectively.
+# Alt value: Different service principals for varying levels of access or for separate environments to maintain security.
+service_principal {
+    client_id     = var.service_principal_client_id
+    client_secret = var.service_principal_secret
+  }
+
+  # Tags in Azure are key-value pairs attached to resources that help you organize and identify them, especially for billing.
+  # For an e-commerce platform, tags can categorize resources by cost center, department, or environment.
+  # Syntax: tags = { Key = "Value" }
+  # Use case: Applying tags like "Environment": "production" to distinguish and allocate costs effectively.
+  # Importance: 3 - Helpful for organization and billing but not critical for the functionality of the resources.
+  # Alt value: Tags like "Project": "E-commerce" or "Department": "Sales" for different organizational needs.
+  tags = {
+    Environment = "production"
+  }
+}
+
+# Output block declares a value that can be queried or is exposed when the configuration is applied.
+# For e-commerce, this could be used in automation scripts or to inform dependent systems about the AKS cluster.
+# Syntax: output "output_name" { ... }
+# Use case: Retrieving the AKS cluster ID for integration with monitoring tools or CI/CD pipelines.
+# Importance: 3 - Useful for integration and management, although not mandatory for initial setup.
+# Alt value: Additional outputs like the cluster endpoint or kubeconfig can be added for different operational needs.
+output "aks_cluster_id" {
+  value = azurerm_kubernetes_cluster.aks.id
+  description = "The ID of the AKS cluster."
+}
