@@ -17,8 +17,6 @@ data "azurerm_key_vault_secret" "client_secret" {
 
 provider "azurerm" {
   features {}
-  client_id       = data.azurerm_key_vault_secret.client_id.value
-  client_secret   = data.azurerm_key_vault_secret.client_secret.value
   subscription_id = var.subscription_id
   tenant_id       = var.tenant_id
 }

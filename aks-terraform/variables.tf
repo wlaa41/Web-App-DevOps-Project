@@ -1,13 +1,13 @@
 # main
-variable "client_id" {
-  description = "The Client Secret for the service principal."
-  type        = string
-}
+# variable "client_id" {
+#   description = "The Client Secret for the service principal."
+#   type        = string
+# }
 
-variable "client_secret" {
-  description = "The Client Secret for the service principal."
-  type        = string
-}
+# variable "client_secret" {
+#   description = "The Client Secret for the service principal."
+#   type        = string
+# }
 
 variable "subscription_id" {
   description = "The Subscription ID for the Azure services."
@@ -61,22 +61,22 @@ variable "vnet_address_space" {
 }
 
 # The following variables are likely required by the networking-module based on the outputs you've specified.
-variable "control_plane_subnet_id" {
-  description = "The ID of the subnet within the VNet for the AKS cluster control plane."
-  type        = string
-}
+# variable "control_plane_subnet_id" {
+#   description = "The ID of the subnet within the VNet for the AKS cluster control plane."
+#   type        = string
+# }
 
-variable "worker_node_subnet_id" {
-  description = "The ID of the subnet within the VNet for the AKS cluster worker nodes."
-  type        = string
-}
+# variable "worker_node_subnet_id" {
+#   description = "The ID of the subnet within the VNet for the AKS cluster worker nodes."
+#   type        = string
+# }
 
-# Variables for Network Security Group rules if they are needed as inputs to your modules
+# # Variables for Network Security Group rules if they are needed as inputs to your modules
 
-variable "aks_nsg_id" {
-  description = "The nsg id"
-  type        = string
-}
+# variable "aks_nsg_id" {
+#   description = "The nsg id"
+#   type        = string
+# }
 
 variable "my_ip_address" {
   description = "The public IP address allowed to access the resources."

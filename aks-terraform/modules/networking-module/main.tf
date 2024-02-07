@@ -1,7 +1,3 @@
-provider "azurerm" {
-  features {}
-  # ... other configurations ...
-}
 
 
 resource "azurerm_resource_group" "aks_rg" {
