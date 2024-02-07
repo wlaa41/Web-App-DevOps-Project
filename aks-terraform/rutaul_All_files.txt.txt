@@ -1,0 +1,435 @@
+---./variables.tf---
+# ks-cluster-module/variables.tf
+
+
+variable "subscription_id" {
+  description = "The Subscription ID for the Azure services."
+  type        = string
+}
+
+variable "tenant_id" {
+  description = "The Tenant ID for the Azure services."
+  type        = string
+}
+
+
+
+
+# AKS cluster
+
+variable "aks_cluster_name" {
+  description = "The name of the AKS cluster to be created."
+  type        = string
+}
+
+
+variable "dns_prefix" {
+  description = "The DNS prefix for the AKS cluster, which forms part of the cluster's fully qualified domain name."
+  type        = string
+}
+
+variable "kubernetes_version" {
+  description = "The version of Kubernetes to use for the AKS cluster."
+  type        = string
+}
+
+
+
+
+variable "resource_group_name" {
+  description = "The name of the Azure Resource Group where the AKS cluster will be provisioned."
+  type        = string
+}
+
+variable "location" {
+  description = "Specifies the geographic location where the networking resources will be deployed."
+  type        = string
+}
+
+variable "vnet_address_space" {
+  description = "Defines the IP address range for the Virtual Network, specifying available IP addresses within the VNet."
+  type        = list(string)
+  default     = ["10.0.0.0/16"]
+
+}
+
+# The following variables are likely required by the networking-module based on the outputs you've specified.
+# variable "control_plane_subnet_id" {
+#   description = "The ID of the subnet within the VNet for the AKS cluster control plane."
+#   type        = string
+# }
+
+# variable "worker_node_subnet_id" {
+#   description = "The ID of the subnet within the VNet for the AKS cluster worker nodes."
+#   type        = string
+# }
+
+# # Variables for Network Security Group rules if they are needed as inputs to your modules
+
+# variable "aks_nsg_id" {
+#   description = "The nsg id"
+#   type        = string
+# }
+
+variable "my_ip_address" {
+  description = "The public IP address allowed to access the resources."
+  type        = string
+}
+
+variable "key_vault_name" {
+  description = "The name of the Azure Key Vault"
+  type        = string
+}
+
+variable "client_id_secret_name" {
+  description = "The name of the secret in Azure Key Vault that stores the service principal client ID"
+  type        = string
+}
+
+variable "client_secret_secret_name" {
+  description = "The name of the secret in Azure Key Vault that stores the service principal client secret"
+  type        = string
+}
+
+
+---./main.tf---
+# ks-cluster-module/main.tf
+
+data "azurerm_key_vault" "main" {
+  name                = var.key_vault_name
+  resource_group_name = var.resource_group_name
+}
+
+data "azurerm_key_vault_secret" "client_id" {
+  name         = var.client_id_secret_name
+  key_vault_id = data.azurerm_key_vault.main.id
+}
+
+data "azurerm_key_vault_secret" "client_secret" {
+  name         = var.client_secret_secret_name
+  key_vault_id = data.azurerm_key_vault.main.id
+}
+
+provider "azurerm" {
+  features {}
+  subscription_id = var.subscription_id
+  tenant_id       = var.tenant_id
+}
+
+module "networking-module" {
+  source = "./modules/networking-module"
+
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  vnet_address_space  = var.vnet_address_space
+  my_ip_address = var.my_ip_address // Add this line to pass the variable to your module
+
+}
+
+module "aks-cluster-module" {
+  source = "./modules/aks-cluster-module/"
+
+  aks_cluster_name            = var.aks_cluster_name
+  location                    = var.location
+  dns_prefix                  = var.dns_prefix
+  kubernetes_version          = var.kubernetes_version
+  resource_group_name         = module.networking-module.networking_resource_group_name
+  client_id                   = data.azurerm_key_vault_secret.client_id.value
+  client_secret               = data.azurerm_key_vault_secret.client_secret.value
+  vnet_id                     = module.networking-module.vnet_id
+  control_plane_subnet_id     = module.networking-module.control_plane_subnet_id
+  worker_node_subnet_id       = module.networking-module.worker_node_subnet_id
+  aks_nsg_id                  = module.networking-module.aks_nsg_id
+}
+#   aks_cluster_name            = var.aks_cluster_name
+#   location                    = var.location
+#   dns_prefix                  = var.dns_prefix
+#   kubernetes_version          = var.kubernetes_version
+#   resource_group_name         = var.resource_group_name
+#   client_id                   = var.client_id
+#   client_secret               = var.client_secret
+#   vnet_id                     = module.networking-module.vnet_id
+#   control_plane_subnet_id     = module.networking-module.control_plane_subnet_id
+#   worker_node_subnet_id       = module.networking-module.worker_node_subnet_id
+#   aks_nsg_id                  = module.networking.aks_nsg_id
+
+# }
+
+
+---./terraform.tfvars---
+
+# ks-cluster-module/terraform.tfvars
+
+
+# Networking variables and AKS Cluster variables
+resource_group_name = "networking-resource-group"
+location            = "UK South"  # Closest to London for better latency
+
+
+
+
+# Networking variables
+vnet_address_space  = ["10.0.0.0/16"]
+
+# AKS Cluster variables
+aks_cluster_name    = "terraform-aks-cluster"
+dns_prefix          = "myaks-project"  # Your chosen DNS prefix
+kubernetes_version  = "1.26.6"  # Ensure this is a version supported by AKS at the time of deployment
+
+
+# Key Vault secret names
+key_vault_name = "myvault-aicore1" # Azure Key Vault name
+client_id_secret_name     = "service-princible-appId"     # Name of the secret where the client ID is stored
+client_secret_secret_name = "service-princible-password"  # Name of the secret where the client secret is stored
+
+---./modules/networking-module/output.tf---
+# ks-cluster-module/modules/networking-module/output.tf file
+
+output "vnet_id" {
+  description = "The ID of the VNet created for the AKS cluster."
+  value       = azurerm_virtual_network.aks_vnet.id
+}
+
+output "control_plane_subnet_id" {
+  description = "The ID of the subnet created for the AKS control plane."
+  value       = azurerm_subnet.control_plane_subnet.id
+}
+
+output "worker_node_subnet_id" {
+  description = "The ID of the subnet created for the AKS worker nodes."
+  value       = azurerm_subnet.worker_node_subnet.id
+}
+
+output "networking_resource_group_name" {
+  description = "The name of the resource group where networking resources are provisioned."
+  value       = azurerm_resource_group.aks_rg.name
+}
+
+output "aks_nsg_id" {
+  description = "The ID of the Network Security Group associated with the AKS cluster."
+  value       = azurerm_network_security_group.aks_nsg.id
+}
+
+
+---./modules/networking-module/variables.tf---
+# ks-cluster-module/modules/networking-module/variable.tf file
+
+variable "resource_group_name" {
+  description = "Defines the Azure Resource Group's name where networking resources are deployed."
+  type        = string
+  default     = "networking-resource-group"
+}
+
+variable "location" {
+  description = "Specifies the geographic location where the networking resources will be deployed."
+  type        = string
+  default     = "UK South"
+}
+
+variable "vnet_address_space" {
+  description = "Defines the IP address range for the Virtual Network, specifying available IP addresses within the VNet."
+  type        = list(string)
+  default     = ["10.0.0.0/16"]
+}
+
+variable "my_ip_address" {
+  description = "My public IP address for security rules"
+  type        = string
+  // No default value is set to ensure that it is provided explicitly for security reasons.
+}
+
+
+---./modules/networking-module/main.tf---
+
+
+# aks-cluster-module/modules/networking-module/main.tf file
+
+resource "azurerm_resource_group" "aks_rg" {
+
+  name     = var.resource_group_name
+  location = var.location
+  tags  = {
+    "Purpose" = "AKS Networking"
+  }
+}
+
+resource "azurerm_virtual_network" "aks_vnet" {
+  name                = "aks-vnet"
+  address_space      = var.vnet_address_space
+  location            = azurerm_resource_group.aks_rg.location
+  resource_group_name = azurerm_resource_group.aks_rg.name
+  tags = {
+    "Environment" = "Kubernetes"
+  }
+}
+
+resource "azurerm_subnet" "control_plane_subnet" {
+  name                 = "control-plane-subnet"
+  resource_group_name  = azurerm_resource_group.aks_rg.name
+  virtual_network_name = azurerm_virtual_network.aks_vnet.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+resource "azurerm_subnet" "worker_node_subnet" {
+  name                 = "worker-node-subnet"
+  resource_group_name  = azurerm_resource_group.aks_rg.name
+  virtual_network_name = azurerm_virtual_network.aks_vnet.name
+  address_prefixes     = ["10.0.2.0/24"]
+}
+
+resource "azurerm_network_security_group" "aks_nsg" {
+  name                = "aks-nsg"
+  location            = azurerm_resource_group.aks_rg.location
+  resource_group_name = azurerm_resource_group.aks_rg.name
+
+  tags = {
+    "Usage" = "AKS Security"
+  }
+}
+
+# Separate resource for the Kubernetes API server rule
+resource "azurerm_network_security_rule" "kube_apiserver_rule" {
+  name                        = "kube-apiserver-rule"
+  priority                    = 100
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "6443"
+  source_address_prefix       = "${var.my_ip_address}/32" # Replace with your public IP This refers to the subnet mask length. In CIDR (Classless Inter-Domain Routing) notation, /32 means all 32 bits are used to identify the unique IP address, leaving no bits for the host portion. Therefore, a /32 subnet mask specifies a single IP address.
+  destination_address_prefix  = "*"
+  network_security_group_name = azurerm_network_security_group.aks_nsg.name
+  resource_group_name         = azurerm_resource_group.aks_rg.name
+}
+
+# Separate resource for the SSH rule
+resource "azurerm_network_security_rule" "ssh_rule" {
+  name                        = "ssh-rule"
+  priority                    = 101
+  direction                   = "Inbound"
+  access                      = "Allow"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
+  source_address_prefix       = "${var.my_ip_address}/32" # Replace with your public IP This refers to the subnet mask length. In CIDR (Classless Inter-Domain Routing) notation, /32 means all 32 bits are used to identify the unique IP address, leaving no bits for the host portion. Therefore, a /32 subnet mask specifies a single IP address.
+  destination_address_prefix  = "*"
+  description                 = "Allow inbound SSH traffic from a specific IP for management"
+  network_security_group_name = azurerm_network_security_group.aks_nsg.name
+  resource_group_name         = azurerm_resource_group.aks_rg.name
+}
+
+
+---./modules/aks-cluster-module/output.tf---
+# aks-cluster-module/modules/aks-cluster-module/output.tf file
+
+output "aks_cluster_name" {
+  description = "The name of the provisioned AKS cluster."
+  value       = azurerm_kubernetes_cluster.aks.name
+}
+
+output "aks_cluster_id" {
+  description = "The ID of the provisioned AKS cluster."
+  value       = azurerm_kubernetes_cluster.aks.id
+}
+
+output "aks_kubeconfig" {
+  description = "The kubeconfig file for managing the AKS cluster."
+  value       = azurerm_kubernetes_cluster.aks.kube_config_raw
+  sensitive   = true  # This is marked as sensitive to avoid exposing credentials in logs or outputs.
+}
+
+
+---./modules/aks-cluster-module/variables.tf---
+# aks-cluster-module//modules/aks-cluster-module/variables.tf file
+
+variable "client_id" {
+  description = "The Client Secret for the service principal."
+  type        = string
+}
+
+variable "client_secret" {
+  description = "The Client Secret for the service principal."
+  type        = string
+}
+
+
+
+variable "aks_cluster_name" {
+  description = "The name of the AKS cluster to be created."
+  type        = string
+}
+
+variable "location" {
+  description = "The Azure region where the AKS cluster will be deployed."
+  type        = string
+}
+
+variable "dns_prefix" {
+  description = "The DNS prefix for the AKS cluster, which forms part of the cluster's fully qualified domain name."
+  type        = string
+}
+
+variable "kubernetes_version" {
+  description = "The version of Kubernetes to use for the AKS cluster."
+  type        = string
+}
+
+# Output variables from the networking module, used as input variables for this module.
+variable "resource_group_name" {
+  description = "The name of the Azure Resource Group where the AKS cluster will be provisioned."
+  type        = string
+}
+
+variable "vnet_id" {
+  description = "The ID of the VNet that the AKS cluster will be associated with."
+  type        = string
+}
+
+variable "control_plane_subnet_id" {
+  description = "The ID of the subnet within the VNet for the AKS cluster control plane."
+  type        = string
+}
+
+variable "worker_node_subnet_id" {
+  description = "The ID of the subnet within the VNet for the AKS cluster worker nodes."
+  type        = string
+}
+
+variable "aks_nsg_id" {
+  description = "The ID of the Network Security Group associated with the AKS cluster."
+  type        = string
+}
+
+---./modules/aks-cluster-module/main.tf---
+# aks-cluster-module//modules/aks-cluster-module/main.tf file
+
+resource "azurerm_kubernetes_cluster" "aks" {
+  name                = var.aks_cluster_name
+  location            = var.location
+  dns_prefix          = var.dns_prefix
+  kubernetes_version  = var.kubernetes_version
+  resource_group_name = var.resource_group_name
+
+  default_node_pool {
+    name       = "default"
+    node_count = 1
+    vm_size    = "Standard_DS2_v2"
+    vnet_subnet_id = var.worker_node_subnet_id
+  }
+
+  service_principal {
+    client_id     = var.client_id
+    client_secret = var.client_secret
+  }
+  tags = {
+    Environment = "production"
+  }
+
+  network_profile {
+    network_plugin = "azure"
+    service_cidr   = "10.1.0.0/16"  // An example CIDR that does not overlap with your subnets
+    dns_service_ip = "10.1.0.10"    // Must be within the service_cidr
+  }
+}
+
+
