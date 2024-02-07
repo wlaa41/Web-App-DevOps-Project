@@ -1,3 +1,5 @@
+# ks-cluster-module/modules/networking-module/output.tf file
+
 output "vnet_id" {
   description = "The ID of the VNet created for the AKS cluster."
   value       = azurerm_virtual_network.aks_vnet.id

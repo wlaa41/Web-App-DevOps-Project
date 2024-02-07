@@ -1,4 +1,5 @@
-# main
+# aks-cluster-module//modules/aks-cluster-module/variables.tf file
+
 variable "client_id" {
   description = "The Client Secret for the service principal."
   type        = string

@@ -1,4 +1,4 @@
-# Main Terraform configuration file
+# ks-cluster-module/main.tf
 
 data "azurerm_key_vault" "main" {
   name                = var.key_vault_name

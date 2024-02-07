@@ -1,4 +1,4 @@
-# Within the cluster-module's main.tf file
+# aks-cluster-module//modules/aks-cluster-module/main.tf file
 
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
@@ -22,5 +22,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
     Environment = "production"
   }
 
+  network_profile {
+    network_plugin = "azure"
+    service_cidr   = "10.1.0.0/16"  // An example CIDR that does not overlap with your subnets
+    dns_service_ip = "10.1.0.10"    // Must be within the service_cidr
+  }
 }
-

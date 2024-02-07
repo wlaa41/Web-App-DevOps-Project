@@ -1,3 +1,5 @@
+# ks-cluster-module/modules/networking-module/variable.tf file
+
 variable "resource_group_name" {
   description = "Defines the Azure Resource Group's name where networking resources are deployed."
   type        = string

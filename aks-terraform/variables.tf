@@ -1,13 +1,5 @@
-# main
-# variable "client_id" {
-#   description = "The Client Secret for the service principal."
-#   type        = string
-# }
+# ks-cluster-module/variables.tf
 
-# variable "client_secret" {
-#   description = "The Client Secret for the service principal."
-#   type        = string
-# }
 
 variable "subscription_id" {
   description = "The Subscription ID for the Azure services."
