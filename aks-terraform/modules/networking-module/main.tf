@@ -1,3 +1,9 @@
+provider "azurerm" {
+  features {}
+  # ... other configurations ...
+}
+
+
 resource "azurerm_resource_group" "aks_rg" {
 
   name     = var.resource_group_name
@@ -50,7 +56,7 @@ resource "azurerm_network_security_rule" "kube_apiserver_rule" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "6443"
-  source_address_prefix       = "<The_Public_IP>/32" # Replace with your public IP
+  source_address_prefix       = "${var.my_ip_address}/32" # Replace with your public IP This refers to the subnet mask length. In CIDR (Classless Inter-Domain Routing) notation, /32 means all 32 bits are used to identify the unique IP address, leaving no bits for the host portion. Therefore, a /32 subnet mask specifies a single IP address.
   destination_address_prefix  = "*"
   network_security_group_name = azurerm_network_security_group.aks_nsg.name
   resource_group_name         = azurerm_resource_group.aks_rg.name
@@ -65,7 +71,7 @@ resource "azurerm_network_security_rule" "ssh_rule" {
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "22"
-  source_address_prefix       = "<The_Public_IP>/32" # Replace with your public IP
+  source_address_prefix       = "${var.my_ip_address}/32" # Replace with your public IP This refers to the subnet mask length. In CIDR (Classless Inter-Domain Routing) notation, /32 means all 32 bits are used to identify the unique IP address, leaving no bits for the host portion. Therefore, a /32 subnet mask specifies a single IP address.
   destination_address_prefix  = "*"
   description                 = "Allow inbound SSH traffic from a specific IP for management"
   network_security_group_name = azurerm_network_security_group.aks_nsg.name

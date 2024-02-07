@@ -97,6 +97,8 @@ dist/
 
 # Local .terraform directories
 **/.terraform/*
+.terraform/
+
 
 # .tfstate files
 *.tfstate
@@ -121,3 +123,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+#file with ids
+must-read-me.txt
+must-run-me.sh

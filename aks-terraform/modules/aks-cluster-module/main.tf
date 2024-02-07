@@ -2,7 +2,7 @@
 
 resource "azurerm_kubernetes_cluster" "aks" {
   name                = var.aks_cluster_name
-  location            = var.cluster_location
+  location            = var.location
   dns_prefix          = var.dns_prefix
   kubernetes_version  = var.kubernetes_version
   resource_group_name = var.resource_group_name
@@ -15,12 +15,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   service_principal {
-    client_id     = var.service_principal_client_id
-    client_secret = var.service_principal_secret
+    client_id     = var.client_id
+    client_secret = var.client_secret
   }
+
+
 
   tags = {
     Environment = "production"
   }
+
 }
 
