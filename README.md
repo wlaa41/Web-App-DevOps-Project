@@ -11,13 +11,10 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 - [Containerization](#containerization)
 - [Containerization](#containerization)
 - [Infrastructure as Code](#infrastructure-as-code)
-- [AKS Cluster Provisioning with Terraform
-](#aks-cluster-provisioning-with-terraform
-)
+- [AKS Cluster Provisioning with Terraform](#aks-cluster-provisioning-with-terraform)
+- [Configuring kubectl with AKS kubeconfig](#configuring-kubectl-with-aks-kubeconfig)
 - [Contributors](#contributors)
 - [License](#license)
-
-AKS Cluster Provisioning with Terraform
 
 
 ## Features
@@ -125,13 +122,21 @@ The Docker image for the Web-App-DevOps-Project includes all the dependencies an
 
 #### Networking Setup
 
-The foundation of our e-commerce application's infrastructure on Azure is laid out using Terraform, an Infrastructure as Code (IaC) tool, which enables us to define, provision, and manage the cloud infrastructure using configuration files. Below are the steps and components involved in setting up the networking infrastructure for our application.
+The foundation of our  application's infrastructure on Azure is laid out using Terraform, an Infrastructure as Code (IaC) tool, which enables us to define, provision, and manage the cloud infrastructure using configuration files. Below are the steps and components involved in setting up the networking infrastructure for our application.
 
 ### Networking with Terraform on Azure
 
 #### Prerequisites
 
-Before proceeding, ensure that you have the Azure CLI installed and configured with the necessary permissions to create and manage Azure resources.
+- Terraform v0.14+
+- Azure CLI or Azure PowerShell Module
+- An Azure subscription and tenant
+- Azure Key Vault set up with service principal credentials stored as secrets
+
+### Modules Overview
+- **Networking Module**: Sets up the required networking infrastructure, including the virtual network (VNet), subnets for control plane and worker nodes, and network security group (NSG) rules for secure access.
+- **AKS Cluster Module**: Provisions the AKS cluster with specified Kubernetes version, DNS prefix, and integrates with the networking module to place the cluster in the created VNet and subnets. Also, it uses Azure Key Vault to securely retrieve the service principal credentials needed for AKS.
+
 
 ### Resource Group
 
@@ -164,6 +169,10 @@ Before proceeding, ensure that you have the Azure CLI installed and configured w
 - **Importance**: Essential (1)
 - **Dependencies**: Depends on the virtual network.
 
+## Security and Access
+- Network Security Group (NSG) rules are configured to restrict access to the Kubernetes API server and SSH access to nodes, based on your public IP address for enhanced security.
+- Service principal credentials are securely fetched from Azure Key Vault, ensuring sensitive information is not hardcoded in the Terraform files.
+
 ### Network Security Group (NSG)
 
 - **File**: `main.tf`
@@ -174,6 +183,10 @@ Before proceeding, ensure that you have the Azure CLI installed and configured w
 - **Security Rules**:
   - **kube-apiserver-rule**: Allows traffic to the Kubernetes API server.
   - **ssh-rule**: Permits SSH access to the cluster for remote management.
+
+## Outputs
+- **Networking Module Outputs (`output.tf`)**: Outputs from the networking module include IDs for the created VNet, subnets, and NSG, which are consumed by the AKS cluster module.
+- **AKS Cluster Module Outputs (`output.tf`)**: Outputs the AKS cluster name, ID, and kubeconfig. The kubeconfig output is marked as sensitive to prevent it from being displayed in logs.
 
 ### Output Variables
 
@@ -228,7 +241,7 @@ This section of the README outlines the process of provisioning an AKS cluster u
 
 9. **Apply the Configuration**: Run `terraform apply` to create the defined resources on Azure.
 
-## Input Variables
+### Input Variables
 
 - `resource_group_name`: The name for the Azure Resource Group.
 - `location`: The Azure region where the resources will be deployed.
@@ -236,7 +249,7 @@ This section of the README outlines the process of provisioning an AKS cluster u
 - `control_plane_subnet_id`: The ID for the control plane's subnet.
 - `worker_node_subnet_id`: The ID for the worker nodes' subnet.
 
-## Output Variables
+### Output Variables
 
 - `vnet_id`: The ID of the created VNet.
 - `aks_cluster_id`: The ID of the provisioned AKS cluster.
@@ -244,7 +257,7 @@ This section of the README outlines the process of provisioning an AKS cluster u
 
 These variables are crucial for the connectivity and management of the AKS cluster, which underpins our e-commerce platform's operations.
 
-## Pushing to GitHub
+### Pushing to GitHub
 
 To ensure that our IaC code is versioned and changes are tracked, we push our latest Terraform configuration to GitHub using the following commands:
 
@@ -256,6 +269,20 @@ git push origin main
 
 Replace `main` with the name of the branch you are pushing to if it's not the main branch.
 
+## Configuring kubectl with AKS kubeconfig
+
+After saving the kubeconfig file for your Azure Kubernetes Service (AKS) cluster, you need to configure `kubectl` to use this file for communication with your Kubernetes cluster. Follow the steps below to set this up:
+
+```bash
+# Set the KUBECONFIG environment variable to point to your kubeconfig file
+export KUBECONFIG=./kubeconfig_aks
+
+# With KUBECONFIG set, you can now use kubectl to interact with your AKS cluster.
+# To get the list of nodes in your cluster, run:
+kubectl get nodes
+```
+
+Ensure that the `kubeconfig_aks` file is present in the current directory or update the path accordingly.
 
 ## Contributors 
 
