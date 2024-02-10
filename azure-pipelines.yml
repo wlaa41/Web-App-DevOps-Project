@@ -24,4 +24,4 @@ steps:
     azureResourceGroup: 'networking-resource-group'
     kubernetesCluster: 'terraform-aks-cluster'
     command: 'apply'
-    arguments: '-f $(System.DefaultWorkingDirectory)/aks-terraform/application-manifest
+    arguments: '-f $(System.DefaultWorkingDirectory)/aks-terraform/application-manifest.yaml'
