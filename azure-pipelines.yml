@@ -12,7 +12,7 @@ steps:
     containerRegistry: 'Ducker Hub'
     command: 'buildAndPush'
     repository: 'walaab/aicore_finalproject'
-    dockerfile: '**/Dockerfile'
+    dockerfile: 'Dockerfile'
     tags: 'latest'
 - task: Kubernetes@1
   displayName: 'Deploy to AKS'
