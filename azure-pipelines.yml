@@ -9,9 +9,9 @@ steps:
   displayName: 'Build and Push Docker image'
   inputs:
     containerRegistry: 'DockerHubConnection'  # Use the service connection name you created earlier
-    repository: 'your-docker-hub-username/your-image-name'  # Replace with your Docker Hub repo and image name
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'  # Replace with the path to your Dockerfile
+    command: 'buildAndPush' 
+    repository: 'walaab/aicore_finalproject' 
+    dockerfile: '**/Dockerfile' 
     tags: |
       latest
       $(Build.BuildId)
