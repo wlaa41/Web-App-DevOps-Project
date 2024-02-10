@@ -24,3 +24,20 @@ This command makes the defined environment variables available in your current s
 - **.gitignore Inclusion:** To prevent accidental exposure of credentials, `must-run-me.sh` must be added to your `.gitignore` file. This action ensures that the script, along with its sensitive content, is not committed to your version control system.
 
 By following these guidelines, you can maintain a secure and efficient workflow for managing cloud resources and services as part of our project.
+
+
+# Configuring kubectl with AKS kubeconfig
+
+After saving the kubeconfig file, you need to tell kubectl to use it when communicating with your Kubernetes cluster. You can do this by setting the KUBECONFIG environment variable to point to the file you just created:
+
+```bash
+export KUBECONFIG=./kubeconfig_aks
+```
+
+#### With KUBECONFIG set, you can now use kubectl to interact with your AKS cluster. For example, to get the list of nodes in your cluster, run:
+
+```bash
+kubectl get nodes
+```
+
+This configuration step is crucial for managing your AKS cluster. The `kubeconfig` file contains all the necessary details to connect to your Kubernetes cluster, including cluster certificates and user credentials. When you set the KUBECONFIG environment variable, `kubectl` reads this file to determine the cluster's endpoint and the appropriate method to authenticate.
