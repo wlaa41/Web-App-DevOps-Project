@@ -1,19 +1,17 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: Docker@2
+  displayName: 'Build and Push Docker image'
+  inputs:
+    containerRegistry: 'DockerHubConnection'  # Use the service connection name you created earlier
+    repository: 'your-docker-hub-username/your-image-name'  # Replace with your Docker Hub repo and image name
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'  # Replace with the path to your Dockerfile
+    tags: |
+      latest
+      $(Build.BuildId)
