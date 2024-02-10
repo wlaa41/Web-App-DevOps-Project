@@ -6,10 +6,21 @@ pool:
   parallel: 1
 
 steps:
+- script: |
+    echo "Listing all files in $(Build.SourcesDirectory)"
+    ls -al $(Build.SourcesDirectory)
+    echo "Checking for Dockerfile"
+    if [ -f $(Build.SourcesDirectory)/Dockerfile ]; then
+      echo "Dockerfile found."
+    else
+      echo "Dockerfile not found."
+      exit 1
+    fi
+  displayName: 'List files and check for Dockerfile'
 - task: Docker@2
   displayName: 'Build and Push Docker image'
   inputs:
-    containerRegistry: 'DockerHubConnection1' 
+    containerRegistry: 'Docker Hub' 
     command: 'buildAndPush' 
     repository: 'walaab/aicorefinalproject' 
     dockerfile: '**/Dockerfile' 
