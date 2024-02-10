@@ -15,3 +15,11 @@ steps:
     kubernetesCluster: 'terraform-aks-cluster'
     command: 'apply'
     arguments: '-f $(System.DefaultWorkingDirectory)/aks-terraform/application-manifest.yaml'
+- task: Docker@2
+  displayName: 'Build and Push Docker image'
+  inputs:
+    containerRegistry: 'Ducker Hub'
+    command: 'buildAndPush'
+    repository: 'walaab/aicore_finalproject'
+    dockerfile: 'Dockerfile'
+    tags: 'latest'
