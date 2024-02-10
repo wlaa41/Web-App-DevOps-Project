@@ -13,9 +13,7 @@ steps:
     command: 'buildAndPush'
     repository: 'walaab/aicore_finalproject'
     dockerfile: '**/Dockerfile'
-    tags: |
-      latest
-      $(Build.BuildId)
+    tags: 'latest'
 - task: Kubernetes@1
   displayName: 'Deploy to AKS'
   inputs:
