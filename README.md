@@ -13,8 +13,10 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 - [Infrastructure as Code](#infrastructure-as-code)
 - [AKS Cluster Provisioning with Terraform](#aks-cluster-provisioning-with-terraform)
 - [Configuring kubectl with AKS kubeconfig](#configuring-kubectl-with-aks-kubeconfig)
+- [Kubernetes Deployment Documentation](#Kubernetes-deployment-documentation)
 - [Contributors](#contributors)
 - [License](#license)
+
 
 
 ## Features
@@ -111,12 +113,12 @@ This feature has been documented with branch and commit details for potential re
 
 - **Building the Image**: `docker build -t webapp-devops .` to create an image from the Dockerfile in the current directory.
 - **Running a Container**: `docker run -p 5000:5000 webapp-devops` to start a container and expose it on port 5000.
-- **Tagging the Image**: `docker tag webapp-devops walaab/aicore_finalproject` to assign a tag to the image for pushing to Docker Hub.
-- **Pushing to Docker Hub**: `docker push walaab/aicore_finalproject` to upload the tagged image to Docker Hub.
+- **Tagging the Image**: `docker tag webapp-devops walaab/aicorefinalproject` to assign a tag to the image for pushing to Docker Hub.
+- **Pushing to Docker Hub**: `docker push walaab/aicorefinalproject` to upload the tagged image to Docker Hub.
 
 ### Image Information
 
-The Docker image for the Web-App-DevOps-Project includes all the dependencies and configurations required to run the web application in a containerized environment. The image is named `webapp-devops` and is tagged as `walaab/aicore_finalproject` for version control and distribution through Docker Hub.
+The Docker image for the Web-App-DevOps-Project includes all the dependencies and configurations required to run the web application in a containerized environment. The image is named `webapp-devops` and is tagged as `walaab/aicorefinalproject` for version control and distribution through Docker Hub.
 
 ## Infrastructure as Code
 
@@ -283,6 +285,65 @@ kubectl get nodes
 ```
 
 Ensure that the `kubeconfig_aks` file is present in the current directory or update the path accordingly.
+
+## Kubernetes Deployment Documentation
+
+### Introduction
+
+This section of the README outlines the processes and configurations involved in deploying our Flask application within the Azure Kubernetes Service (AKS). It covers the creation and explanation of Deployment and Service manifests, the chosen deployment strategy, and the testing and validation procedures following deployment.
+
+### Deployment and Service Manifests
+
+#### Deployment Manifest
+
+Our application's deployment is managed by a Kubernetes Deployment manifest. This manifest ensures that two replicas of the Flask application are running at any given time for high availability and load distribution. The key components of this manifest are:
+
+- **Metadata**: Identifies the deployment with the name `flask-app-deployment`.
+- **Replicas**: Specifies the desired number of application instances.
+- **Selector**: Matches the labels to identify the pods that the Deployment manages.
+- **Template**: Defines the pod template and includes:
+  - **Containers**: Specifies the container image `walaab/aicorefinalproject:latest` and the container port `5000`.
+
+#### Service Manifest
+
+The Service manifest defines how the Flask application's pods are exposed within the cluster:
+
+- **Selector**: Matches the labels to determine which pods will handle the traffic.
+- **Ports**: Maps port `80` on the Service to target port `5000` on the Flask application pods.
+- **Type**: `ClusterIP` ensures the Service is only reachable within the cluster, providing a stable internal endpoint.
+
+### Deployment Strategy
+
+We employ a **RollingUpdate** strategy to minimize downtime and ensure a smooth transition between the old and new versions of the application:
+
+- **Max Unavailable**: Limits the number of pods that can be unavailable during the update.
+- **Max Surge**: Controls the number of additional pods that can be created above the desired number of pods.
+
+This strategy suits our need for continuous availability during deployments and updates to the Flask application.
+
+### Testing and Validation
+
+![Alt text](Testing_pod_with_jubectl-1.png)
+
+
+Following the deployment, we conducted a series of tests to verify the application's functionality and reliability:
+
+- **Internal Connectivity Test**: Ensuring the Flask application responds correctly within the cluster.
+- **Replication Test**: Verifying that both replicas handle requests and that load is effectively distributed.
+- **Update Rollout Test**: Testing the rolling update process to confirm that updates occur without service interruption.
+
+These tests confirm that our application operates as expected within the AKS environment.
+
+
+
+### Distribution to Internal Users
+
+To distribute the application to internal users without port forwarding, we leverage Kubernetes Services and Ingress:
+
+1. **Internal DNS Configuration**: Set up internal DNS to point to the ClusterIP Service for easy access within the corporate network.
+2. **Ingress Controller**: Deploy an Ingress controller to manage external access and route traffic to the Flask application Service.
+3. **Access Controls**: Implement RBAC and network policies to ensure only authorized internal users can access the application.
+
 
 ## Contributors 
 

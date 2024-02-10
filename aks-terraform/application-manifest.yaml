@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: flask-app-container
-        image: walaab/aicore_finalproject:latest
+        image: walaab/aicorefinalproject:latest
         ports:
         - containerPort: 5000
   strategy:  

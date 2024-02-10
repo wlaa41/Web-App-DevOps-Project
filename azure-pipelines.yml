@@ -6,6 +6,14 @@ pool:
   parallel: 1
 
 steps:
+- task: Docker@2
+  displayName: 'Build and Push Docker image'
+  inputs:
+    containerRegistry: 'DockerHubConnection1' 
+    command: 'buildAndPush' 
+    repository: 'walaab/aicorefinalproject' 
+    dockerfile: '**/Dockerfile' 
+    tags: 'latest'
 - task: Kubernetes@1
   displayName: 'Deploy to AKS'
   inputs:
@@ -15,11 +23,3 @@ steps:
     kubernetesCluster: 'terraform-aks-cluster'
     command: 'apply'
     arguments: '-f $(System.DefaultWorkingDirectory)/aks-terraform/application-manifest.yaml'
-- task: Docker@2
-  displayName: 'Build and Push Docker image'
-  inputs:
-    containerRegistry: 'Docker Hub'
-    command: 'buildAndPush'
-    repository: 'walaab/aicore_finalproject'
-    dockerfile: “**/Dockerfile”
-    tags: 'latest'
