@@ -6,14 +6,6 @@ pool:
   parallel: 1
 
 steps:
-- task: Docker@2
-  displayName: 'Build and Push Docker image'
-  inputs:
-    containerRegistry: 'DockerHubConnection1'
-    command: 'buildAndPush'
-    repository: 'walaab/aicore_finalproject'
-    dockerfile: '**/Dockerfile'
-    tags: 'latest'
 - task: Kubernetes@1
   displayName: 'Deploy to AKS'
   inputs:
