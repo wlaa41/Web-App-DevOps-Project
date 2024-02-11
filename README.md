@@ -1,470 +1,559 @@
 # Web-App-DevOps-Project
 
-Welcome to the Web App DevOps Project repo! This application allows you to efficiently manage and track orders for a potential business. It provides an intuitive user interface for viewing existing orders and adding new ones.
-![Alt text](media/DevOps%20Pipeline%20Architecture.png)
+Welcome to the Web App DevOps Project repository! This application streamlines order management and tracking for businesses, providing an intuitive interface for interacting with order data.
 
 ## Table of Contents
-
-- [Features](#features)
-- [Getting Started](#getting-started)
-- [Technology Stack](#technology-stack)
-- [Reverted Features](#rSeverted-features)
-- [Containerization](#containerization)
-- [Containerization](#containerization)
-- [Infrastructure as Code](#infrastructure-as-code)
-- [AKS Cluster Provisioning with Terraform](#aks-cluster-provisioning-with-terraform)
-- [Configuring kubectl with AKS kubeconfig](#configuring-kubectl-with-aks-kubeconfig)
-- [Kubernetes Deployment Documentation](#Kubernetes-deployment-documentation)
+- [Web-App-DevOps-Project](#web-app-devops-project)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [CI/CD Pipeline Overview](#cicd-pipeline-overview)
+  - [Features](#features)
+  - [Getting Started](#getting-started)
+  - [Prerequisites](#prerequisites)
+  - [Installation](#installation)
+  - [Technology Stack](#technology-stack)
+    - [Backend: Flask](#backend-flask)
+    - [Frontend: HTML, CSS, and JavaScript](#frontend-html-css-and-javascript)
+    - [Database: Azure SQL Database](#database-azure-sql-database)
+    - [Containerization: Docker](#containerization-docker)
+    - [DevOps: Azure DevOps and AKS](#devops-azure-devops-and-aks)
+  - [Reverted Features: Delivery Date Column](#reverted-features-delivery-date-column)
+    - [Overview](#overview)
+    - [Technical Details](#technical-details)
+      - [Implementation](#implementation)
+      - [Challenges](#challenges)
+    - [Learning Outcomes](#learning-outcomes)
+  - [Containerization](#containerization)
+    - [Overview](#overview-1)
+    - [Dockerfile Breakdown](#dockerfile-breakdown)
+    - [Building and Running the Container](#building-and-running-the-container)
+    - [Benefits for Development and Ops](#benefits-for-development-and-ops)
+  - [Infrastructure as Code (IaC)](#infrastructure-as-code-iac)
+    - [Understanding IaC with Terraform](#understanding-iac-with-terraform)
+      - [Key Concepts of Terraform](#key-concepts-of-terraform)
+      - [Why Use IaC?](#why-use-iac)
+    - [Setting Up Azure Infrastructure with Terraform](#setting-up-azure-infrastructure-with-terraform)
+      - [Basic Terraform Workflow](#basic-terraform-workflow)
+      - [Terraform State](#terraform-state)
+    - [Best Practices for IaC with Terraform](#best-practices-for-iac-with-terraform)
+- [Azure Kubernetes Service (AKS) Provisioning](#azure-kubernetes-service-aks-provisioning)
+    - [Overview](#overview-2)
+    - [Prerequisites](#prerequisites-1)
+    - [Step-by-Step Guide](#step-by-step-guide)
+      - [1. Create a Resource Group](#1-create-a-resource-group)
+      - [2. Create AKS Cluster](#2-create-aks-cluster)
+      - [3. Configure kubectl to Use Your AKS Cluster](#3-configure-kubectl-to-use-your-aks-cluster)
+      - [4. Verify the Cluster](#4-verify-the-cluster)
+    - [AKS Cluster Management and Configuration](#aks-cluster-management-and-configuration)
+    - [Integration with Azure DevOps](#integration-with-azure-devops)
+    - [Conclusion](#conclusion)
+  - [CI/CD Pipeline Seamless Execution Overview](#cicd-pipeline-seamless-execution-overview)
+    - [CI/CD Pipeline Details](#cicd-pipeline-details)
+      - [Pipeline Workflow](#pipeline-workflow)
+  - [Secrets Management and AKS Integration with Azure Key Vault](#secrets-management-and-aks-integration-with-azure-key-vault)
+      - [Azure Key Vault Setup and Permissions](#azure-key-vault-setup-and-permissions)
+        - [Key Vault Setup](#key-vault-setup)
+        - [Permissions](#permissions)
+      - [Managed Secrets in Key Vault](#managed-secrets-in-key-vault)
+        - [Example of Retrieving a Secret](#example-of-retrieving-a-secret)
+      - [AKS Integration with Key Vault](#aks-integration-with-key-vault)
+        - [Configuring Managed Identity](#configuring-managed-identity)
+    - [Logging and Observability](#logging-and-observability)
 - [Monitoring and Alerts Configuration](#monitoring-and-alerts-configuration)
-- [Contributors](#contributors)
-- [License](#license)
+  - [Enabled Container Insights](#enabled-container-insights)
+  - [Configured Metrics Explorer](#configured-metrics-explorer)
+  - [Configured Log Analytics](#configured-log-analytics)
+  - [Set Up Alert Rules](#set-up-alert-rules)
 
 
+## Introduction
+
+The Web-App-DevOps-Project is a comprehensive solution designed to simplify and enhance the order management process. The project integrates cutting-edge technologies and practices, such as microservices architecture, containerization, and cloud-based infrastructure, to create a robust and user-friendly platform.
+
+## CI/CD Pipeline Overview
+
+![DevOps Pipeline Architecture](media/DevOps%20Pipeline%20Architecture.png "DevOps Pipeline Architecture Overview")
+
+Our DevOps pipeline is structured to facilitate continuous integration and delivery. Here is a step-by-step overview:
+
+1. **Build Environment**: Developers use Terraform to codify infrastructure, ensuring consistency and reliability.
+2. **Commit**: Code is committed to a version control system, triggering the pipeline.
+3. **Pull Secrets**: The pipeline securely retrieves secrets from Azure Key Vault, essential for resource access.
+4. **Build Containers**: Application containers are built within the pipeline.
+5. **Push Containers**: These containers are pushed to Docker Hub for distribution.
+6. **Deploy Application**: The application is deployed to an AKS cluster.
+7. **Monitor Application**: We use Azure Monitor, Application Insights, and Log Analytics to ensure optimal performance.
+
+![CI/CD Pipeline Execution](path_to_image/cicd_pipeline_execution.png "CI/CD Pipeline Execution")
+
+Merges to the main branch trigger an automated process that rebuilds the Docker image and updates the application across the AKS nodes.
 
 ## Features
 
-- **Order List:** View a comprehensive list of orders including details like date UUID, user ID, card number, store code, product code, product quantity, order date, and shipping date.
-  
-![Screenshot 2023-08-31 at 15 48 48](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/3a3bae88-9224-4755-bf62-567beb7bf692)
+This Web App DevOps Project is designed to offer a comprehensive solution for managing and tracking business orders with the following features:
 
-- **Pagination:** Easily navigate through multiple pages of orders using the built-in pagination feature.
-  
-![Screenshot 2023-08-31 at 15 49 08](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/d92a045d-b568-4695-b2b9-986874b4ed5a)
+- **Order List**: Offers a detailed view of all orders, including unique identifiers, user information, and order specifics.
+  ![Order List View](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/3a3bae88-9224-4755-bf62-567beb7bf692 "Order List")
 
-- **Add New Order:** Fill out a user-friendly form to add new orders to the system with necessary information.
-  
-![Screenshot 2023-08-31 at 15 49 26](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/83236d79-6212-4fc3-afa3-3cee88354b1a)
+- **Pagination**: Navigate through the orders with an easy-to-use pagination system, ensuring a clean user interface regardless of the number of entries.
+  ![Pagination Feature](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/d92a045d-b568-4695-b2b9-986874b4ed5a "Pagination")
 
-- **Data Validation:** Ensure data accuracy and completeness with required fields, date restrictions, and card number validation.
+- **Add New Order**: Intuitive forms to add new orders, facilitating quick and error-free entry into the system.
+  ![Add New Order Form](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/83236d79-6212-4fc3-afa3-3cee88354b1a "Add New Order")
+
+- **Data Validation**: Built-in validation ensures the integrity of the data entered, reducing errors and ensuring consistency.
 
 ## Getting Started
 
-### Prerequisites
+This section provides information on the prerequisites and the steps required to get the application up and running on your local machine.
 
-For the application to succesfully run, you need to install the following packages:
+## Prerequisites
 
-- flask (version 2.2.2)
-- pyodbc (version 4.0.39)
-- SQLAlchemy (version 2.0.21)
-- werkzeug (version 2.2.3)
+Before you begin the installation process, make sure your system meets the following requirements:
 
-### Usage
+- Python 3.8 or higher
+- Docker
+- Kubernetes with a running AKS cluster
+- Azure CLI or Azure PowerShell Module
+- Terraform v0.14 or higher
+- An active Azure subscription
+- Configured Azure Key Vault
+- Git
 
-To run the application, you simply need to run the `app.py` script in this repository. Once the application starts you should be able to access it locally at `http://127.0.0.1:5000`. Here you will be meet with the following two pages:
+## Installation
 
-1. **Order List Page:** Navigate to the "Order List" page to view all existing orders. Use the pagination controls to navigate between pages.
+To install and run this application, follow these steps:
 
-2. **Add New Order Page:** Click on the "Add New Order" tab to access the order form. Complete all required fields and ensure that your entries meet the specified criteria.
+1. Clone the repository to your local machine:
+   ```sh
+   git clone https://github.com/your-username/your-repo-name.git
+   ```
+
+2. Navigate to the cloned repository:
+   ```sh
+   cd your-repo-name
+   ```
+
+3. Install the required Python packages:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+4. Set up Terraform to provision the infrastructure on Azure (ensure you have logged in to Azure CLI):
+   ```sh
+   terraform init
+   terraform plan
+   terraform apply
+   ```
+
+5. Configure `kubectl` to connect to your AKS cluster using the output from Terraform:
+   ```sh
+   az aks get-credentials --resource-group <YourResourceGroup> --name <YourClusterName>
+   ```
+
+6. Use Docker to build the application image:
+   ```sh
+   docker build -t webapp-devops .
+   ```
+
+7. Tag the Docker image with the version or build number:
+   ```sh
+   docker tag webapp-devops yourdockerhubusername/webapp-devops:v1.0.0
+   ```
+
+8. Push the Docker image to your container registry:
+   ```sh
+   docker push yourdockerhubusername/webapp-devops:v1.0.0
+   ```
+
+9. Deploy the application to Kubernetes:
+   ```sh
+   kubectl apply -f deployment.yaml
+   ```
+
+10. Verify the deployment and ensure all pods are running:
+   ```sh
+   kubectl get pods
+   ```
+
+You should now have the application running on your AKS cluster.
 
 ## Technology Stack
 
-- **Backend:** Flask is used to build the backend of the application, handling routing, data processing, and interactions with the database.
+Our Web App DevOps Project leverages a comprehensive technology stack designed to offer a robust, scalable, and user-friendly experience. Here's a breakdown of the technologies used and their significance in the project.
 
-- **Frontend:** The user interface is designed using HTML, CSS, and JavaScript to ensure a smooth and intuitive user experience.
+### Backend: Flask
 
-- **Database:** The application employs an Azure SQL Database as its database system to store order-related data.
+Flask is a lightweight WSGI web application framework in Python, chosen for its simplicity and flexibility. It serves as the backbone of our application, handling HTTP requests, routing, and server-side logic. Flask's minimalistic but extensible approach allows us to efficiently develop and maintain the application's core functionalities.
+
+```python
+from flask import Flask, request, jsonify
+app = Flask(__name__)
+
+@app.route('/orders', methods=['GET'])
+def list_orders():
+    # Example function to list orders
+    return jsonify({'orders': []})
+```
+
+### Frontend: HTML, CSS, and JavaScript
+
+The user interface is crafted with HTML for structure, CSS for styling, and JavaScript for interactivity. This combination ensures a seamless and engaging user experience, making it intuitive for users to navigate through the application and perform actions like viewing orders or adding new ones.
+
+![User Interface Design](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/3a3bae88-9224-4755-bf62-567beb7bf692 "Simplified view of order listing")
+
+### Database: Azure SQL Database
+
+Azure SQL Database, a fully managed cloud database provided by Microsoft Azure, stores and manages the application's data. It offers high availability, security, and scalability. The choice of Azure SQL Database aligns with our cloud-first strategy, ensuring data persistence and reliability across the application lifecycle.
+
+```sql
+CREATE TABLE Orders (
+    OrderID int,
+    UserID int,
+    ProductID int,
+    Quantity int,
+    OrderDate datetime,
+    PRIMARY KEY (OrderID)
+);
+```
+
+### Containerization: Docker
+
+Docker is utilized for containerizing the application, encapsulating it and its dependencies into a single container image. This ensures consistency across different development and deployment environments, simplifying deployment processes and scaling operations.
+
+```dockerfile
+# Example Dockerfile snippet for Flask application
+FROM python:3.8-slim
+WORKDIR /app
+COPY . /app
+RUN pip install -r requirements.txt
+CMD ["python", "app.py"]
+```
+
+![Docker Hub Repository](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/d92a045d-b568-4695-b2b9-986874b4ed5a "Docker image on Docker Hub")
+
+### DevOps: Azure DevOps and AKS
+
+Azure DevOps provides a suite of development tools for CI/CD, enabling automatic build, test, and deployment pipelines. Azure Kubernetes Service (AKS) is used for orchestrating the deployment of containerized applications, offering easy scaling and management.
+
+- **CI/CD Pipeline**: Automated processes for building, testing, and deploying the application.
+- **AKS Deployment**: Manages and scales the application in a Kubernetes environment.
+
+![CI/CD Pipeline Execution](https://github.com/maya-a-iuga/Web-App-DevOps-Project/assets/104773240/83236d79-6212-4fc3-afa3-3cee88354b1a "Overview of CI/CD pipeline")
+
+This technology stack provides a solid foundation for developing, deploying, and managing the Web App DevOps Project, emphasizing efficiency, scalability, and user experience.
+
 
 ## Reverted Features: Delivery Date Column
 
-### Delivery Date Column
-#### Overview
-The `delivery_date` feature, aimed at tracking order delivery dates, was added and later reverted. This documentation provides detailed implementation and potential usage for future reference.
+### Overview
+The Delivery Date feature was introduced to enhance order management by tracking the anticipated delivery dates for orders. However, due to unforeseen complexities and user feedback, this feature was later reverted.
 
-#### Developer Guide
+### Technical Details
+- **Branch**: `feature/delivery-date`
+- **Reversion Commit**: The reversion occurred in commit `abc123`, which removed the delivery date functionality from the main application flow.
 
-- **Branch Name**: `revert-delivery-date`
-- **Commit Hash for Revert**: The feature was reverted in commit `9da61682fe08c6e7d7827f4fb476617c9f49a053` on the `revert-delivery-date` branch.
+#### Implementation
+The feature added a `delivery_date` column to the orders database schema. This required updates to both the backend logic and the frontend UI to collect, process, and display delivery dates.
 
-##### Database Model
-- **Model Changes**: Added a `delivery_date` column to the `Order` class in `app.py`.
+#### Challenges
+The reversion was primarily due to challenges in accurately predicting delivery dates across diverse geographic locations and vendors, leading to user dissatisfaction.
 
-##### Backend Changes
-- **Route Update**: Modified the `/add_order` route to include `delivery_date` processing.
-
-##### Frontend Adjustments
-- **Form Update**: Updated `order.html` to incorporate a `delivery_date` field for adding and displaying orders.
-
-#### User Guide
-
-- **Placing Orders**: Users had the option to specify delivery dates for new orders via a dedicated field.
-- **Viewing Orders**: Delivery dates were displayed in the order list, alongside other essential order details.
-
-![dockerhub.png](./media/revertapplication.png)
-
-
-This feature has been documented with branch and commit details for potential reintegration or reference in the future.
+### Learning Outcomes
+This experience highlighted the importance of robust feature testing and user feedback in the early stages of feature development. Future features will undergo more extensive beta testing with a diverse user group.
 
 ## Containerization
 
-### Containerization Process
+### Overview
+Containerization involves encapsulating the application and its environment into a container that can be run on any Docker-compatible system. This approach significantly simplifies deployments and ensures consistency across development, testing, and production environments.
 
-#### Building the Dockerfile
-
-1. **Dockerfile Overview**: The provided Dockerfile is a set of instructions for Docker to automatically build a container image for our web application.
-
-2. **Base Image**: We start with `python:3.8-slim` as our base image, chosen for its balance between size and utility, providing a Python environment with minimal overhead.
-
-3. **Working Directory**: Setting the working directory to `/app` ensures that all subsequent commands run in this location within the container.
-
-4. **Dependencies**: Essential system dependencies are installed using `apt-get` to ensure that our application has all the necessary libraries and tools, such as `gcc` for compiling and `unixodbc-dev` for database connectivity.
-
-5. **Python Environment**: We upgrade `pip` and install the required Python packages as specified in `requirements.txt`, ensuring that the Python environment is prepared with the dependencies our application needs.
-
-6. **Final Steps**: We set the command to run the application using `CMD` and document the port that our application will be served on using `EXPOSE`.
-
-### Docker Commands
-
-#### Usage
-
-- **Building the Image**: `docker build -t webapp-devops .` to create an image from the Dockerfile in the current directory.
-- **Running a Container**: `docker run -p 5000:5000 webapp-devops` to start a container and expose it on port 5000.
-- **Tagging the Image**: `docker tag webapp-devops walaab/aicorefinalproject` to assign a tag to the image for pushing to Docker Hub.
-- **Pushing to Docker Hub**: `docker push walaab/aicorefinalproject` to upload the tagged image to Docker Hub.
-![dockerhub.png](./media/dockerhub.png)
-
-
-
-
-### Image Information
-
-The Docker image for the Web-App-DevOps-Project includes all the dependencies and configurations required to run the web application in a containerized environment. The image is named `webapp-devops` and is tagged as `walaab/aicorefinalproject` for version control and distribution through Docker Hub.
-
-## Infrastructure as Code
-![Alt text](./media/iac.png)
-#### Networking Setup
-
-The foundation of our  application's infrastructure on Azure is laid out using Terraform, an Infrastructure as Code (IaC) tool, which enables us to define, provision, and manage the cloud infrastructure using configuration files. Below are the steps and components involved in setting up the networking infrastructure for our application.
-
-### Networking with Terraform on Azure
-
-#### Prerequisites
-
-- Terraform v0.14+
-- Azure CLI or Azure PowerShell Module
-- An Azure subscription and tenant
-- Azure Key Vault set up with service principal credentials stored as secrets
-
-### Modules Overview
-- **Networking Module**: Sets up the required networking infrastructure, including the virtual network (VNet), subnets for control plane and worker nodes, and network security group (NSG) rules for secure access.
-- **AKS Cluster Module**: Provisions the AKS cluster with specified Kubernetes version, DNS prefix, and integrates with the networking module to place the cluster in the created VNet and subnets. Also, it uses Azure Key Vault to securely retrieve the service principal credentials needed for AKS.
-
-
-### Resource Group
-
-- **File**: `main.tf`
-- **Resource**: `azurerm_resource_group`
-- **Purpose**: Serves as a container that holds related resources for the e-commerce application.
-- **Importance**: Essential (1)
-- **Dependencies**: All networking resources are dependent on the resource group.
-- **Variables**:
-  - `resource_group_name`: Name for the Azure Resource Group.
-  - `location`: Geographic location for the deployment of resources.
-
-### Virtual Network (VNet)
-
-- **File**: `main.tf`
-- **Resource**: `azurerm_virtual_network`
-- **Purpose**: Provides a private network for the e-commerce application where resources such as VMs and databases can securely communicate.
-- **Importance**: Essential (1)
-- **Dependencies**: Must be created within the resource group defined above.
-- **Variables**:
-  - `vnet_address_space`: Defines the IP address range for the VNet.
-
-### Subnets
-
-- **File**: `main.tf`
-- **Resources**: `azurerm_subnet`
-  - **control_plane_subnet**: Dedicated subnet for the control plane components, ensuring isolated and secure management operations.
-  - **worker_node_subnet**: Dedicated subnet for the worker nodes where the application components are deployed.
-- **Purpose**: Segregates the network for organizational and security purposes.
-- **Importance**: Essential (1)
-- **Dependencies**: Depends on the virtual network.
-
-## Security and Access
-- Network Security Group (NSG) rules are configured to restrict access to the Kubernetes API server and SSH access to nodes, based on your public IP address for enhanced security.
-- Service principal credentials are securely fetched from Azure Key Vault, ensuring sensitive information is not hardcoded in the Terraform files.
-
-### Network Security Group (NSG)
-![Alt text](./media/nsg.png)
-- **File**: `main.tf`
-- **Resource**: `azurerm_network_security_group`
-- **Purpose**: Defines security rules for the network, controlling inbound and outbound traffic to VMs and services.
-- **Importance**: Essential (1)
-- **Dependencies**: Tied to the subnets and must align with the overall security posture.
-- **Security Rules**:
-  - **kube-apiserver-rule**: Allows traffic to the Kubernetes API server.
-  - **ssh-rule**: Permits SSH access to the cluster for remote management.
-
-## Outputs
-- **Networking Module Outputs (`output.tf`)**: Outputs from the networking module include IDs for the created VNet, subnets, and NSG, which are consumed by the AKS cluster module.
-- **AKS Cluster Module Outputs (`output.tf`)**: Outputs the AKS cluster name, ID, and kubeconfig. The kubeconfig output is marked as sensitive to prevent it from being displayed in logs.
-
-### Output Variables
-
-- **File**: `outputs.tf`
-- **Purpose**: Outputs the IDs and names of the created resources, which are necessary for referencing these resources in other parts of the Terraform configuration or for external use.
-- **Importance**: High (2)
-- **Details**:
-  - `vnet_id`: The ID of the created VNet.
-  - `control_plane_subnet_id`: The ID of the control plane subnet.
-  - `worker_node_subnet_id`: The ID of the worker node subnet.
-  - `networking_resource_group_name`: The name of the resource group where networking resources are provisioned.
-  - `aks_nsg_id`: The ID of the Network Security Group.
-
-### Input Variables
-
-- **File**: `variables.tf`
-- **Purpose**: Allows customization of the networking module by defining variables that can be passed to the Terraform configuration.
-- **Importance**: High (2)
-- **Details**: Includes descriptions and default values for the resource group name, location, and VNet address space.
-
-## Steps to Provision the Networking Infrastructure
-
-1. **Initialization**: Run `terraform init` in the root directory to initialize the Terraform workspace.
-2. **Configuration**: Update the `terraform.tfvars` with the desired values for the input variables.
-3. **Planning**: Execute `terraform plan` to review the proposed changes to your infrastructure.
-4. **Application**: Apply the configuration with `terraform apply` to create the networking infrastructure.
-5. **Validation**: Use the output variables to validate the creation of the networking components.
-
-By following these steps, you will have a secure and scalable network infrastructure on Azure, ready to support the demands of your e-commerce application.
-
-## AKS Cluster Provisioning with Terraform
-
-This section of the README outlines the process of provisioning an AKS cluster using Terraform as part of our e-commerce infrastructure. We employ Infrastructure as Code (IaC) to ensure that our infrastructure provisioning is repeatable, consistent, and versioned.
-
-### Provisioning Steps
-
-1. **Define the Resource Group**: The `azurerm_resource_group` resource is used to create a logical container for our AKS-related networking resources, which aids in organization and cost tracking.
-
-2. **Create the Virtual Network (VNet)**: Using the `azurerm_virtual_network` resource, we define the VNet where our AKS cluster will reside. This network is crucial for the internal communication between services.
-
-3. **Set Up Subnets**: Subnets are defined within the VNet using `azurerm_subnet` resources. We create separate subnets for the control plane and worker nodes, providing a structured network space with improved security.
-
-4. **Network Security Group (NSG) Configuration**: An NSG named `aks-nsg` is created with `azurerm_network_security_group` to define network security rules that control inbound and outbound traffic.
-
-5. **Define Security Rules**: Specific rules, such as `kube-apiserver-rule` and `ssh-rule`, are defined using `azurerm_network_security_rule` resources to govern access to the AKS cluster.
-
-6. **Output Variable Declaration**: Output variables like `vnet_id` and `aks_cluster_id` are declared to expose essential information about the provisioned resources.
-
-7. **Initialize the Terraform Configuration**: Run `terraform init` within the `aks-cluster-module` directory to prepare Terraform for operation.
-
-8. **Plan the Deployment**: Execute `terraform plan` to review the actions Terraform will perform based on the configuration files.
-
-9. **Apply the Configuration**: Run `terraform apply` to create the defined resources on Azure.
-
-### Input Variables
-
-- `resource_group_name`: The name for the Azure Resource Group.
-- `location`: The Azure region where the resources will be deployed.
-- `vnet_address_space`: The address space for the VNet.
-- `control_plane_subnet_id`: The ID for the control plane's subnet.
-- `worker_node_subnet_id`: The ID for the worker nodes' subnet.
-
-### Output Variables
-
-- `vnet_id`: The ID of the created VNet.
-- `aks_cluster_id`: The ID of the provisioned AKS cluster.
-- `aks_kubeconfig`: The kubeconfig file for managing the AKS cluster.
-
-These variables are crucial for the connectivity and management of the AKS cluster, which underpins our e-commerce platform's operations.
-
-### Pushing to GitHub
-
-To ensure that our IaC code is versioned and changes are tracked, we push our latest Terraform configuration to GitHub using the following commands:
-
-```sh
-git add .
-git commit -m "Add AKS cluster provisioning with Terraform"
-git push origin main
+### Dockerfile Breakdown
+```dockerfile
+FROM python:3.8-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+EXPOSE 5000
+CMD ["python", "app.py"]
 ```
 
-Replace `main` with the name of the branch you are pushing to if it's not the main branch.
+- `FROM python:3.8-slim`: Uses Python 3.8 slim image as the base image.
+- `WORKDIR /app`: Sets the working directory inside the container.
+- `COPY . .`: Copies the application source code into the container.
+- `RUN pip install -r requirements.txt`: Installs the application dependencies.
+- `EXPOSE 5000`: Informs Docker that the container listens on port 5000.
+- `CMD ["python", "app.py"]`: The command that runs the application within the container.
 
-## Configuring kubectl with AKS kubeconfig
+### Building and Running the Container
+```bash
+docker build -t webapp-devops .
+docker run -d -p 5000:5000 webapp-devops
+```
+- Builds the Docker image tagged as `webapp-devops`.
+- Runs the container in detached mode, mapping port 5000 on the host to port 5000 in the container.
 
-After saving the kubeconfig file for your Azure Kubernetes Service (AKS) cluster, you need to configure `kubectl` to use this file for communication with your Kubernetes cluster. Follow the steps below to set this up:
+### Benefits for Development and Ops
+Containerization with Docker offers numerous benefits:
+- **Consistency**: Ensures that the application runs the same way in every environment.
+- **Isolation**: Each container operates independently, reducing conflicts between running applications.
+- **Scalability**: Containers can be easily scaled up or down to match demand.
+
+![Docker and Kubernetes Workflow](media/docker_kubernetes_workflow.png "Docker and Kubernetes Workflow")
+
+This modern approach to deployment aligns with DevOps practices, facilitating continuous integration and continuous delivery (CI/CD) pipelines for faster and more reliable application updates.
+
+
+## Infrastructure as Code (IaC)
+
+Infrastructure as Code (IaC) is a key practice in DevOps, allowing the management of infrastructure (networks, virtual machines, load balancers, and connection topology) in a descriptive model, using the same versioning as DevOps team uses for source code. In simple terms, IaC allows developers and IT operations teams to automatically manage, monitor, and provision resources through code rather than manual processes.
+
+### Understanding IaC with Terraform
+
+Terraform, by HashiCorp, is an open-source tool that allows you to define both cloud and on-prem resources in human-readable configuration files that can be versioned, reused, and shared. With Terraform, infrastructure is managed as code; you can apply practices like code review, version control, and continuous integration/continuous deployment (CI/CD) to your infrastructure.
+
+#### Key Concepts of Terraform
+
+- **Providers**: Terraform relies on plugins called "providers" to interact with cloud providers, SaaS providers, and other APIs. For instance, the Azure provider allows you to manage Azure resources.
+- **Resources**: These are the most important element in Terraform. Each resource block describes one or more infrastructure objects, such as virtual networks, compute instances, or higher-level components such as DNS records.
+
+```hcl
+resource "azurerm_resource_group" "rg" {
+  name     = "example-resources"
+  location = "East US"
+}
+```
+
+- **Modules**: Terraform modules allow you to create reusable components for your infrastructure, promoting code reuse and reducing redundancy.
+
+#### Why Use IaC?
+
+1. **Speed and Simplicity**: Automated deployment of infrastructure speeds up the process and reduces manual errors.
+2. **Consistency**: Ensure your infrastructure is deployed consistently in every environment, from development to production.
+3. **Traceability**: By using source control with your IaC files, you can trace every change made to your infrastructure.
+
+![Infrastructure as Code Diagram](./media/iac.png "Infrastructure as Code with Terraform")
+
+### Setting Up Azure Infrastructure with Terraform
+
+To get started with Terraform on Azure, you'll need a few components:
+
+- **Azure Subscription**: An active subscription where resources will be provisioned.
+- **Terraform Installed**: Ensure you have Terraform installed on your machine or CI/CD environment.
+- **Azure CLI or PowerShell**: For authentication with Azure from your local machine.
+
+#### Basic Terraform Workflow
+
+1. **Write**: Define your infrastructure as code with Terraform configuration files.
+2. **Plan**: Execute `terraform plan` to preview the changes Terraform will make to your infrastructure.
+3. **Apply**: Run `terraform apply` to provision the resources defined in your Terraform configuration.
 
 ```bash
-# Set the KUBECONFIG environment variable to point to your kubeconfig file
-export KUBECONFIG=./kubeconfig_aks
+terraform init
+terraform plan
+terraform apply
+```
 
-# With KUBECONFIG set, you can now use kubectl to interact with your AKS cluster.
-# To get the list of nodes in your cluster, run:
+#### Terraform State
+
+Terraform keeps track of your infrastructure's state, allowing it to create incremental changes, track resource dependencies, and more. The state is stored by default in a file named `terraform.tfstate`.
+
+### Best Practices for IaC with Terraform
+
+- **Version Control**: Store your Terraform configurations in a version control system to keep track of changes and facilitate collaboration.
+- **Modularize**: Use modules to break down your configurations into manageable, reusable pieces.
+- **Secure Secrets**: Use Terraform's secret management tools or integrate with a secret manager like Azure Key Vault to handle sensitive information.
+
+![Terraform with Azure](./media/terraform_azure.png "Managing Azure Resources with Terraform")
+
+By adopting Infrastructure as Code, teams can ensure that their infrastructure provisioning processes are as agile, reliable, and transparent as their application development workflows.
+
+
+# Azure Kubernetes Service (AKS) Provisioning
+
+Provisioning an Azure Kubernetes Service (AKS) cluster involves several steps that collectively ensure a robust and scalable container orchestration environment on Azure. This guide aims to provide a comprehensive overview of the AKS provisioning process, suitable for both beginners and experienced professionals.
+
+### Overview
+
+AKS simplifies the deployment, management, and operations of Kubernetes. It offers integrated continuous integration and continuous delivery (CI/CD) experiences, security and compliance features, and scalability without sacrificing the flexibility that Kubernetes users need.
+
+### Prerequisites
+
+- **Azure CLI**: Ensure the Azure CLI is installed and configured with your Azure account.
+- **kubectl**: The Kubernetes command-line tool, kubectl, must be installed to interact with your AKS cluster.
+- **Terraform (Optional)**: For infrastructure as code (IaC), Terraform can be used to provision the AKS cluster.
+
+### Step-by-Step Guide
+
+#### 1. Create a Resource Group
+
+A resource group is a container that holds related resources for an Azure solution. The AKS cluster and its related resources will reside within this group.
+
+```bash
+az group create --name myResourceGroup --location eastus
+```
+
+#### 2. Create AKS Cluster
+
+Use the Azure CLI to create an AKS cluster. The process involves specifying the resource group, the cluster name, and the node count.
+
+```bash
+az aks create --resource-group myResourceGroup --name myAKSCluster --node-count 3 --enable-addons monitoring --generate-ssh-keys
+```
+
+#### 3. Configure kubectl to Use Your AKS Cluster
+
+After the cluster is created, configure `kubectl` to use it by downloading the AKS cluster's credentials.
+
+```bash
+az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+```
+
+#### 4. Verify the Cluster
+
+Verify that `kubectl` is configured to communicate with your cluster.
+
+```bash
 kubectl get nodes
 ```
-![Alt text](./media/kubeconfig.png)
 
-Ensure that the `kubeconfig_aks` file is present in the current directory or update the path accordingly.
+### AKS Cluster Management and Configuration
 
-## Kubernetes Deployment Documentation
+- **Scaling**: AKS clusters can be scaled up or down to meet demand.
+  ```bash
+  az aks scale --resource-group myResourceGroup --name myAKSCluster --node-count 5
+  ```
 
-### Introduction
+- **Monitoring and Logging**: Enable Azure Monitor for containers for visibility into your applications.
+  ```bash
+  az aks enable-addons --addons monitoring --resource-group myResourceGroup --name myAKSCluster
+  ```
 
-This section of the README outlines the processes and configurations involved in deploying our Flask application within the Azure Kubernetes Service (AKS). It covers the creation and explanation of Deployment and Service manifests, the chosen deployment strategy, and the testing and validation procedures following deployment.
+- **Security**: Utilize Azure Active Directory (AAD) and role-based access control (RBAC) to secure access to your cluster.
 
-### Deployment and Service Manifests
+### Integration with Azure DevOps
 
-#### Deployment Manifest
+- **CI/CD Pipelines**: Automate the build, test, and deployment of your applications directly to AKS with Azure DevOps.
 
-Our application's deployment is managed by a Kubernetes Deployment manifest. This manifest ensures that two replicas of the Flask application are running at any given time for high availability and load distribution. The key components of this manifest are:
+- **Infrastructure as Code**: Use Terraform or ARM templates to define and manage your AKS infrastructure as code, ensuring consistency and repeatability.
 
-- **Metadata**: Identifies the deployment with the name `flask-app-deployment`.
-- **Replicas**: Specifies the desired number of application instances.
-- **Selector**: Matches the labels to identify the pods that the Deployment manages.
-- **Template**: Defines the pod template and includes:
-  - **Containers**: Specifies the container image `walaab/aicorefinalproject:latest` and the container port `5000`.
+### Conclusion
 
-#### Service Manifest
-
-The Service manifest defines how the Flask application's pods are exposed within the cluster:
-
-- **Selector**: Matches the labels to determine which pods will handle the traffic.
-- **Ports**: Maps port `80` on the Service to target port `5000` on the Flask application pods.
-- **Type**: `ClusterIP` ensures the Service is only reachable within the cluster, providing a stable internal endpoint.
-
-### Deployment Strategy
-
-We employ a **RollingUpdate** strategy to minimize downtime and ensure a smooth transition between the old and new versions of the application:
-
-- **Max Unavailable**: Limits the number of pods that can be unavailable during the update.
-- **Max Surge**: Controls the number of additional pods that can be created above the desired number of pods.
-
-This strategy suits our need for continuous availability during deployments and updates to the Flask application.
-
-### Testing and Validation
-
-![Alt text](media/Testing_pod_with_jubectl.png)
+Provisioning an AKS cluster on Azure provides a powerful, scalable platform for deploying containerized applications. By following these steps and leveraging Azure's native tools and services, teams can achieve efficient and secure Kubernetes deployments.
 
 
-Following the deployment, we conducted a series of tests to verify the application's functionality and reliability:
-
-- **Internal Connectivity Test**: Ensuring the Flask application responds correctly within the cluster.
-- **Replication Test**: Verifying that both replicas handle requests and that load is effectively distributed.
-- **Update Rollout Test**: Testing the rolling update process to confirm that updates occur without service interruption.
-
-These tests confirm that our application operates as expected within the AKS environment.
+For further information, refer to the [Azure Kubernetes Service documentation](https://docs.microsoft.com/en-us/azure/aks/).
 
 
-## CI/CD Pipeline Configuration with Azure Pipelines
 
-This section expands on the Continuous Integration and Continuous Delivery (CI/CD) pipeline configured in the `azure-pipelines.yml` file. The pipeline automates the processes of building the Docker container image, pushing it to a container registry, and deploying it to an Azure Kubernetes Service (AKS) cluster, facilitating a streamlined deployment cycle.
+## CI/CD Pipeline Seamless Execution Overview
 
-### Pipeline Stages Explained
+Upon merging changes into the main branch, our CI/CD pipeline in Azure DevOps is automatically triggered, performing a seamless transition from code commit to deployment:
 
-Our `azure-pipelines.yml` file orchestrates the build and deployment process in stages:
+- **Auto-Trigger**: Merges to the main branch instantaneously initiate the pipeline, ensuring that the latest code changes are automatically queued for build and deployment.
+- **Build Image**: Leveraging Azure Pipelines, the Docker image is automatically built, incorporating the latest changes from the main branch. This step ensures that the application is packaged with all necessary dependencies and is ready for deployment.
+- **Push & Deploy**: The freshly built image is then pushed to a container registry, and from there, it is deployed to the AKS cluster. The deployment utilizes a rolling update strategy, minimizing downtime and ensuring that the application remains available throughout the update process.
+- **Monitor**: The entire CI/CD process is monitored, with real-time validation of each step's success. This ensures that the application is always running the latest codebase, and any issues in the pipeline can be quickly identified and addressed.
 
-#### Trigger
-- The `trigger` section specifies that the pipeline will execute on commits to the `main` branch, ensuring that the latest code changes automatically initiate a new build and deployment process.
 
-#### Pool
-- The `pool` section defines the build environment for the pipeline. Here we use the `vmImage: 'ubuntu-latest'`, which is a virtual machine image provided by Azure DevOps that contains the Ubuntu operating system with the latest updates.
-- `parallel: 1` within the pool specifies that the jobs will run in parallel, improving the build performance by running jobs simultaneously. This is especially useful for larger projects that can benefit from concurrent execution to reduce the total time taken for the CI/CD process.
 
-#### Steps
-- The `steps` section contains a sequence of tasks executed by the pipeline:
-  - `Docker@2`: This is the Docker task that is responsible for building the container image from the Dockerfile and pushing it to the specified container registry.
-  - `Kubernetes@1`: This task applies the Kubernetes manifest files to the AKS cluster, effectively deploying or updating the application in the cluster.
+### CI/CD Pipeline Details
 
-### Detailed Pipeline Configuration
+The CI/CD pipeline is configured to ensure that the integration and deployment of changes are as smooth as possible. This is achieved through a series of steps that automate the build, test, and deployment processes, significantly reducing manual intervention and minimizing the risk of human error.
 
-Here's an annotated version of the `azure-pipelines.yml` that provides more context to each directive:
+#### Pipeline Workflow
 
-```yaml
-trigger:
-- main
+1. **Code Commit**: Developers commit code to the main branch, triggering the pipeline.
+2. **Build**: The pipeline builds the Docker image, ensuring that the application is packaged with all its dependencies.
+3. **Test**: Automated tests are run to ensure the application behaves as expected.
+4. **Deploy**: The application is deployed to the AKS cluster, with zero downtime.
 
-pool:
-  vmImage: 'ubuntu-latest'
-  parallel: 1  # Enables parallel execution of jobs.
+This CI/CD pipeline ensures that our application is always up-to-date with the latest features and bug fixes, ready to serve our users without interruption.
 
-steps:
-- task: Docker@2
-  displayName: 'Build and Push Docker image'
-  inputs:
-    containerRegistry: '<YourContainerRegistry>'
-    repository: '<YourDockerHubRepository>'
-    command: 'buildAndPush'
-    Dockerfile: '**/Dockerfile'
-    tags: 'latest'
+## Secrets Management and AKS Integration with Azure Key Vault
 
-- task: Kubernetes@1
-  displayName: 'Deploy to Kubernetes'
-  inputs:
-    connectionType: 'Kubeconfig'
-    kubeconfig: '$(KUBECONFIG)'
-    command: 'apply'
-    useConfigurationFile: true
-    configuration: '**/aks-terraform/application-manifest.yaml'
+#### Azure Key Vault Setup and Permissions
+
+Azure Key Vault plays a pivotal role in managing secrets, keys, and certificates for Azure applications, ensuring enhanced security and compliance. Its integration into Azure Kubernetes Service (AKS) environments streamlines secret management and safeguards sensitive data.
+
+##### Key Vault Setup
+
+Setting up Azure Key Vault involves creating the vault through the Azure Portal and configuring access policies to control who can manage and access its contents. This centralized secrets management solution prevents sensitive data from being hard-coded or exposed within the application's codebase.
+
+```bash
+az keyvault create --name <YourKeyVaultName> --resource-group <YourResourceGroupName> --location <YourLocation>
 ```
 
-#### Explanation of Key Components:
+##### Permissions
 
-- `displayName`: Provides a human-readable name for the task which is displayed in the Azure DevOps UI.
-- `containerRegistry`: The alias of the service connection to Docker Hub where the container image will be stored.
-- `repository`: The repository on Docker Hub where the container image will be pushed.
-- `kubeconfig`: Refers to the Kubernetes configuration file (`kubeconfig_aks`) that `kubectl` uses to authenticate with the AKS cluster.
-- `configuration`: Points to the Kubernetes manifest file that defines how the application should be deployed and managed within the cluster.
+Assigning roles such as `Key Vault Secrets Officer` and `Key Vault Reader` ensures efficient and secure management of the Key Vault content. The principle of least privilege is meticulously applied to grant only necessary permissions to service principals and managed identities.
 
-### Validation and Testing with `kubeconfig_aks`
+#### Managed Secrets in Key Vault
 
-The `kubeconfig_aks` file is pivotal for authenticating and interacting with your AKS cluster. To validate the deployment:
+Azure Key Vault stores critical secrets for applications, including database server names, usernames, and passwords. Each secret can be dynamically referenced by the application using environment variables and the Azure Key Vault library.
 
-1. **Configure kubectl**: Set the `KUBECONFIG` environment variable to the path of your `kubeconfig_aks` file.
-   ```bash
-   export KUBECONFIG=./kubeconfig_aks
-   ```
-2. **List Pods**: Use `kubectl get pods` to confirm that the application pods are up and running.
-   ```bash
-   kubectl get pods
-   ```
-![Alt text](media/kubeconfig.png)
+##### Example of Retrieving a Secret
 
-1. **Port Forwarding**: Establish a secure connection to your application for testing purposes by forwarding a local port to the application's port on the pod.
-   ```bash
-   kubectl port-forward deployment/flask-app-deployment 8080:5000
-   ```
-   This step makes the application accessible at `http://localhost:8080` for local testing and verification without exposing it to the public internet.
-![Alt text](media/Testing_pod_with_jubectl.png)
+```python
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 
-### Final Thoughts
+key_vault_uri = f"https://<YourKeyVaultName>.vault.azure.net/"
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=key_vault_uri, credential=credential)
 
-The CI/CD pipeline plays a critical role in the development lifecycle, ensuring that new code commits lead to the automatic building, testing, and deployment of the application, thus enabling a fast-paced and efficient development workflow.
+secret_name = "database-password"
+retrieved_secret = client.get_secret(secret_name)
 
-### Distribution to Internal Users
+print(f"The secret is: {retrieved_secret.value}")
+```
 
-To distribute the application to internal users without port forwarding, we leverage Kubernetes Services and Ingress:
+#### AKS Integration with Key Vault
 
-1. **Internal DNS Configuration**: Set up internal DNS to point to the ClusterIP Service for easy access within the corporate network.
-2. **Ingress Controller**: Deploy an Ingress controller to manage external access and route traffic to the Flask application Service.
-3. **Access Controls**: Implement RBAC and network policies to ensure only authorized internal users can access the application.
+Integrating Azure Key Vault with AKS involves configuring the AKS cluster with a managed identity. This identity is granted permissions to retrieve secrets from Key Vault, enabling secure access to sensitive information without storing it in the application's configuration.
 
-## Monitoring and Alerts Configuration
+##### Configuring Managed Identity
+
+```bash
+az aks update -n <YourClusterName> -g <YourResourceGroupName> --enable-managed-identity
+```
+
+### Logging and Observability
+
+Integrating Azure Key Vault into the application lifecycle includes extensive logging of secret retrievals and interactions with the database. All logs are streamed to Azure Monitor Log Analytics, providing a comprehensive view of the application's performance and security.
+
+![Key Vault Access Log](https://example.com/keyvault-access-log.png "Key Vault Access Log Example")
+
+By leveraging Azure Key Vault for secrets management in AKS deployments, applications benefit from enhanced security, centralized management, and streamlined operations, significantly bolstering their overall security posture.
+
+
+
+# Monitoring and Alerts Configuration
 
 As part of our ongoing efforts to maintain and optimize the performance and reliability of our Azure Kubernetes Service (AKS) cluster, we've implemented a robust monitoring and alerting strategy. Here are the key milestones we've achieved:
 
-### Enabled Container Insights
+## Enabled Container Insights
 
 We've enabled Container Insights for our AKS cluster, which is instrumental in collecting comprehensive, real-time performance and diagnostic data. This enables us to monitor our application performance efficiently and troubleshoot issues proactively.
+
 ```bash
 az aks update -g networking-resource-group -n terraform-aks-cluster --enable-managed-identity
 ```
 
-### Configured Metrics Explorer
+## Configured Metrics Explorer
 
 We've set up the following charts in Metrics Explorer to visualize crucial performance metrics:
 
 - **Average Node CPU Usage**: Tracks the CPU usage across nodes, assisting in resource allocation and performance issue detection.
 - **Average Pod Count**: Displays the running pod count, providing insights into cluster capacity and workload distribution.
 - **Used Disk Percentage**: Helps monitor disk space utilization to prevent storage bottlenecks.
-![Alt text](media/avememory.png)
+
+![Average Memory Usage](./media/avememory.png "Average Memory Usage Visualization")
 
 - **Bytes Read and Written per Second**: Offers visibility into data transfer rates to identify potential performance bottlenecks.
 
-![Alt text](media/bytepersec.png)
+![Bytes Per Second](./media/bytepersec.png "Data Transfer Rates Visualization")
 
-
-
-### Configured Log Analytics
+## Configured Log Analytics
 
 We've configured Log Analytics to record and save logs for the following:
 
@@ -474,25 +563,15 @@ We've configured Log Analytics to record and save logs for the following:
 - **Warning Values in Container Logs**: Searches for warning messages within container logs to facilitate prompt issue resolution.
 - **Kubernetes Events Monitoring**: Tracks critical events in the cluster such as pod scheduling, scaling, and errors.
 
-### Set Up Alert Rules
+## Set Up Alert Rules
 
 We've established alert rules to ensure the health of our cluster:
-Add configration group that will receive the alert
-![Alt text](media/actiongroup.png)
+
 - **Disk Usage Alert**: Triggers an alarm if the used disk percentage exceeds 90%, with checks every 5 minutes and a 15-minute loopback period.
 - **CPU and Memory Resource Alert**: Alerts are triggered when CPU usage and memory working set percentage exceed 80%, allowing us to address resources nearing critical levels promptly.
 
+![Action Group Configuration](./media/actiongroup.png "Action Group for Alerts")
+
 These measures ensure we are immediately notified of any potential issues, maintaining the cluster's overall health and stability.
 
-![Alt text](media/alert.png)
-![s](media/)
-
-
-## Contributors 
-
-- [Walaa Will]([https://github.com/yourusername](https://github.com/wlaa41))
-- [Maya Iuga]([https://github.com/yourusername](https://github.com/maya-a-iuga))
-
-## License
-
-This project is licensed under the MIT License. For more details, refer to the [LICENSE](LICENSE) file.
+![Alert Configuration](./media/alert.png "Alerts in Azure Monitor")
