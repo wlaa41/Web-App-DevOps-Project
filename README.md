@@ -1,6 +1,7 @@
 # Web-App-DevOps-Project
 
 Welcome to the Web App DevOps Project repo! This application allows you to efficiently manage and track orders for a potential business. It provides an intuitive user interface for viewing existing orders and adding new ones.
+![Alt text](media/DevOps%20Pipeline%20Architecture%20(1).png)
 
 ## Table of Contents
 
@@ -14,6 +15,7 @@ Welcome to the Web App DevOps Project repo! This application allows you to effic
 - [AKS Cluster Provisioning with Terraform](#aks-cluster-provisioning-with-terraform)
 - [Configuring kubectl with AKS kubeconfig](#configuring-kubectl-with-aks-kubeconfig)
 - [Kubernetes Deployment Documentation](#Kubernetes-deployment-documentation)
+- [Monitoring and Alerts Configuration](#monitoring-and-alerts-configuration)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -87,6 +89,9 @@ The `delivery_date` feature, aimed at tracking order delivery dates, was added a
 - **Placing Orders**: Users had the option to specify delivery dates for new orders via a dedicated field.
 - **Viewing Orders**: Delivery dates were displayed in the order list, alongside other essential order details.
 
+![dockerhub.png](./media/revertapplication.png)
+
+
 This feature has been documented with branch and commit details for potential reintegration or reference in the future.
 
 ## Containerization
@@ -115,13 +120,17 @@ This feature has been documented with branch and commit details for potential re
 - **Running a Container**: `docker run -p 5000:5000 webapp-devops` to start a container and expose it on port 5000.
 - **Tagging the Image**: `docker tag webapp-devops walaab/aicorefinalproject` to assign a tag to the image for pushing to Docker Hub.
 - **Pushing to Docker Hub**: `docker push walaab/aicorefinalproject` to upload the tagged image to Docker Hub.
+![dockerhub.png](./media/dockerhub.png)
+
+
+
 
 ### Image Information
 
 The Docker image for the Web-App-DevOps-Project includes all the dependencies and configurations required to run the web application in a containerized environment. The image is named `webapp-devops` and is tagged as `walaab/aicorefinalproject` for version control and distribution through Docker Hub.
 
 ## Infrastructure as Code
-
+![Alt text](./media/iac.png)
 #### Networking Setup
 
 The foundation of our  application's infrastructure on Azure is laid out using Terraform, an Infrastructure as Code (IaC) tool, which enables us to define, provision, and manage the cloud infrastructure using configuration files. Below are the steps and components involved in setting up the networking infrastructure for our application.
@@ -176,7 +185,7 @@ The foundation of our  application's infrastructure on Azure is laid out using T
 - Service principal credentials are securely fetched from Azure Key Vault, ensuring sensitive information is not hardcoded in the Terraform files.
 
 ### Network Security Group (NSG)
-
+![Alt text](./media/nsg.png)
 - **File**: `main.tf`
 - **Resource**: `azurerm_network_security_group`
 - **Purpose**: Defines security rules for the network, controlling inbound and outbound traffic to VMs and services.
@@ -283,6 +292,7 @@ export KUBECONFIG=./kubeconfig_aks
 # To get the list of nodes in your cluster, run:
 kubectl get nodes
 ```
+![Alt text](./media/kubeconfig.png)
 
 Ensure that the `kubeconfig_aks` file is present in the current directory or update the path accordingly.
 
@@ -323,7 +333,7 @@ This strategy suits our need for continuous availability during deployments and 
 
 ### Testing and Validation
 
-![Alt text](Testing_pod_with_jubectl-1.png)
+![Alt text](media/Testing_pod_with_jubectl.png)
 
 
 Following the deployment, we conducted a series of tests to verify the application's functionality and reliability:
@@ -335,6 +345,90 @@ Following the deployment, we conducted a series of tests to verify the applicati
 These tests confirm that our application operates as expected within the AKS environment.
 
 
+## CI/CD Pipeline Configuration with Azure Pipelines
+
+This section expands on the Continuous Integration and Continuous Delivery (CI/CD) pipeline configured in the `azure-pipelines.yml` file. The pipeline automates the processes of building the Docker container image, pushing it to a container registry, and deploying it to an Azure Kubernetes Service (AKS) cluster, facilitating a streamlined deployment cycle.
+
+### Pipeline Stages Explained
+
+Our `azure-pipelines.yml` file orchestrates the build and deployment process in stages:
+
+#### Trigger
+- The `trigger` section specifies that the pipeline will execute on commits to the `main` branch, ensuring that the latest code changes automatically initiate a new build and deployment process.
+
+#### Pool
+- The `pool` section defines the build environment for the pipeline. Here we use the `vmImage: 'ubuntu-latest'`, which is a virtual machine image provided by Azure DevOps that contains the Ubuntu operating system with the latest updates.
+- `parallel: 1` within the pool specifies that the jobs will run in parallel, improving the build performance by running jobs simultaneously. This is especially useful for larger projects that can benefit from concurrent execution to reduce the total time taken for the CI/CD process.
+
+#### Steps
+- The `steps` section contains a sequence of tasks executed by the pipeline:
+  - `Docker@2`: This is the Docker task that is responsible for building the container image from the Dockerfile and pushing it to the specified container registry.
+  - `Kubernetes@1`: This task applies the Kubernetes manifest files to the AKS cluster, effectively deploying or updating the application in the cluster.
+
+### Detailed Pipeline Configuration
+
+Here's an annotated version of the `azure-pipelines.yml` that provides more context to each directive:
+
+```yaml
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+  parallel: 1  # Enables parallel execution of jobs.
+
+steps:
+- task: Docker@2
+  displayName: 'Build and Push Docker image'
+  inputs:
+    containerRegistry: '<YourContainerRegistry>'
+    repository: '<YourDockerHubRepository>'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: 'latest'
+
+- task: Kubernetes@1
+  displayName: 'Deploy to Kubernetes'
+  inputs:
+    connectionType: 'Kubeconfig'
+    kubeconfig: '$(KUBECONFIG)'
+    command: 'apply'
+    useConfigurationFile: true
+    configuration: '**/aks-terraform/application-manifest.yaml'
+```
+
+#### Explanation of Key Components:
+
+- `displayName`: Provides a human-readable name for the task which is displayed in the Azure DevOps UI.
+- `containerRegistry`: The alias of the service connection to Docker Hub where the container image will be stored.
+- `repository`: The repository on Docker Hub where the container image will be pushed.
+- `kubeconfig`: Refers to the Kubernetes configuration file (`kubeconfig_aks`) that `kubectl` uses to authenticate with the AKS cluster.
+- `configuration`: Points to the Kubernetes manifest file that defines how the application should be deployed and managed within the cluster.
+
+### Validation and Testing with `kubeconfig_aks`
+
+The `kubeconfig_aks` file is pivotal for authenticating and interacting with your AKS cluster. To validate the deployment:
+
+1. **Configure kubectl**: Set the `KUBECONFIG` environment variable to the path of your `kubeconfig_aks` file.
+   ```bash
+   export KUBECONFIG=./kubeconfig_aks
+   ```
+2. **List Pods**: Use `kubectl get pods` to confirm that the application pods are up and running.
+   ```bash
+   kubectl get pods
+   ```
+![Alt text](media/kubeconfig.png)
+
+1. **Port Forwarding**: Establish a secure connection to your application for testing purposes by forwarding a local port to the application's port on the pod.
+   ```bash
+   kubectl port-forward deployment/flask-app-deployment 8080:5000
+   ```
+   This step makes the application accessible at `http://localhost:8080` for local testing and verification without exposing it to the public internet.
+![Alt text](media/Testing_pod_with_jubectl.png)
+
+### Final Thoughts
+
+The CI/CD pipeline plays a critical role in the development lifecycle, ensuring that new code commits lead to the automatic building, testing, and deployment of the application, thus enabling a fast-paced and efficient development workflow.
 
 ### Distribution to Internal Users
 
@@ -343,6 +437,55 @@ To distribute the application to internal users without port forwarding, we leve
 1. **Internal DNS Configuration**: Set up internal DNS to point to the ClusterIP Service for easy access within the corporate network.
 2. **Ingress Controller**: Deploy an Ingress controller to manage external access and route traffic to the Flask application Service.
 3. **Access Controls**: Implement RBAC and network policies to ensure only authorized internal users can access the application.
+
+## Monitoring and Alerts Configuration
+
+As part of our ongoing efforts to maintain and optimize the performance and reliability of our Azure Kubernetes Service (AKS) cluster, we've implemented a robust monitoring and alerting strategy. Here are the key milestones we've achieved:
+
+### Enabled Container Insights
+
+We've enabled Container Insights for our AKS cluster, which is instrumental in collecting comprehensive, real-time performance and diagnostic data. This enables us to monitor our application performance efficiently and troubleshoot issues proactively.
+```bash
+az aks update -g networking-resource-group -n terraform-aks-cluster --enable-managed-identity
+```
+
+### Configured Metrics Explorer
+
+We've set up the following charts in Metrics Explorer to visualize crucial performance metrics:
+
+- **Average Node CPU Usage**: Tracks the CPU usage across nodes, assisting in resource allocation and performance issue detection.
+- **Average Pod Count**: Displays the running pod count, providing insights into cluster capacity and workload distribution.
+- **Used Disk Percentage**: Helps monitor disk space utilization to prevent storage bottlenecks.
+![Alt text](media/avememory.png)
+
+- **Bytes Read and Written per Second**: Offers visibility into data transfer rates to identify potential performance bottlenecks.
+
+![Alt text](media/bytepersec.png)
+
+
+
+### Configured Log Analytics
+
+We've configured Log Analytics to record and save logs for the following:
+
+- **Average Node CPU Usage Percentage per Minute**: Captures granular node-level CPU usage data.
+- **Average Node Memory Usage Percentage per Minute**: Monitors memory usage to detect potential performance concerns.
+- **Pod Counts with Phase**: Provides a count of pods in various lifecycle phases.
+- **Warning Values in Container Logs**: Searches for warning messages within container logs to facilitate prompt issue resolution.
+- **Kubernetes Events Monitoring**: Tracks critical events in the cluster such as pod scheduling, scaling, and errors.
+
+### Set Up Alert Rules
+
+We've established alert rules to ensure the health of our cluster:
+Add configration group that will receive the alert
+![Alt text](media/actiongroup.png)
+- **Disk Usage Alert**: Triggers an alarm if the used disk percentage exceeds 90%, with checks every 5 minutes and a 15-minute loopback period.
+- **CPU and Memory Resource Alert**: Alerts are triggered when CPU usage and memory working set percentage exceed 80%, allowing us to address resources nearing critical levels promptly.
+
+These measures ensure we are immediately notified of any potential issues, maintaining the cluster's overall health and stability.
+
+![Alt text](media/alert.png)
+![s](media/)
 
 
 ## Contributors 
