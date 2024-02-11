@@ -75,8 +75,8 @@ aicore/
 # Docker ignore list
 docker-compose*.yml
 *.dockerignore
-*dockerfile
-Dockerfile
+
+
 **/.dockerenv
 **/.env
 
