@@ -1,7 +1,7 @@
 # Web-App-DevOps-Project
 
 Welcome to the Web App DevOps Project repo! This application allows you to efficiently manage and track orders for a potential business. It provides an intuitive user interface for viewing existing orders and adding new ones.
-![Alt text](media/DevOps%20Pipeline%20Architecture%20(1).png)
+![Alt text](media/DevOps%20Pipeline%20Architecture.png)
 
 ## Table of Contents
 

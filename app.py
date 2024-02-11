@@ -3,28 +3,41 @@ from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
+from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 import pyodbc
 import os
 
 # Initialise Flask App
 app = Flask(__name__)
 
+key_vault_name = "myvault-aicore1"
+key_vault_uri = f"https://{key_vault_name}.vault.azure.net/"
+
+
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=key_vault_uri, credential=credential)
+
 # database connection 
-server = 'devops-project-server.database.windows.net'
-database = 'orders-db'
-username = 'maya'
-password = 'AiCore1237'
-driver= '{ODBC Driver 18 for SQL Server}'
+server = client.get_secret("server-name").value
+database = client.get_secret("database-name").value
+username = client.get_secret("server-username").value
+password = client.get_secret("server-password").value
+# server = 'devops-project-server.database.windows.net'
+# database = 'orders-db'
+# username = 'maya'
+# password = 'AiCore1237'
+# driver= '{ODBC Driver 18 for SQL Server}'
 
 # Create the connection string
-connection_string=f'Driver={driver};\
-    Server=tcp:{server},1433;\
-    Database={database};\
-    Uid={username};\
-    Pwd={password};\
-    Encrypt=yes;\
-    TrustServerCertificate=no;\
-    Connection Timeout=30;'
+connection_string=  f'Driver={driver};\
+                        Server=tcp:{server},1433;\
+                        Database={database};\
+                        Uid={username};\
+                        Pwd={password};\
+                        Encrypt=yes;\
+                        TrustServerCertificate=no;\
+                        Connection Timeout=30;'
 
 # Create the engine to connect to the database
 engine = create_engine("mssql+pyodbc:///?odbc_connect={}".format(connection_string))
