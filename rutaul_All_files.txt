@@ -33,7 +33,6 @@ EXPOSE 5000
 CMD ["python", "app.py"]
 
 
-
 ------------------------------------------------------------------------------------
 ---./azure-pipelines.yml---
 ------------------------------------------------------------------------------------
@@ -64,6 +63,14 @@ steps:
     command: 'apply'
     arguments: '-f $(System.DefaultWorkingDirectory)/aks-terraform/application-manifest.yaml'
 
+# - task: Kubernetes@1
+#   displayName: 'Deploy to Kubernetes'
+#   inputs:
+#     connectionType: 'Kubeconfig'
+#     kubeconfig: '$(KUBECONFIG)'     <<<<<<<<< USING KUBECONFIG WHICH IS EASIER AUTH
+#     command: 'apply'
+#     useConfigurationFile: true
+#     configuration: '**/aks-terraform/application-manifest.yaml'
 
 ------------------------------------------------------------------------------------
 ---./aks-terraform/output.tf---
