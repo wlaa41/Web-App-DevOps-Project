@@ -46,9 +46,8 @@ Our DevOps pipeline is structured to facilitate continuous integration and deliv
 5. **Push Containers**: These containers are pushed to Docker Hub for distribution.
 6. **Deploy Application**: The application is deployed to an AKS cluster.
 7. **Monitor Application**: We use Azure Monitor, Application Insights, and Log Analytics to ensure optimal performance.
-
-![CI/CD Pipeline Execution](path_to_image/cicd_pipeline_execution.png "CI/CD Pipeline Execution")
-
+# CI/CD Pipeline Seamless Execution 
+![CI/CD Pipeline Execution](./media/seemlessPipline.gif)
 Merges to the main branch trigger an automated process that rebuilds the Docker image and updates the application across the AKS nodes.
 
 ## Features
@@ -180,59 +179,64 @@ With your application configured for local use, follow these steps to create a D
 3. **Verify the Application is Running**
    - Open your browser and go to `http://localhost:5000`. You should see your application running.
 
-### Notes
+##### Notes
 - Replace `webapp-devops` with the name you prefer for your Docker image.
 - The `-d` flag runs the container in detached mode, leaving the terminal available for other commands.
 - `-p 5000:5000` maps the container's port 5000 to your local port 5000, allowing you to access the application via `localhost`.
 
 Remember to revert the changes made for local development before deploying the application to a production environment or pushing the code to a shared repository.
 
-## Full Cloud Installation:
+### Full Cloud Installation:
 
-## Part 1: Setting Up Azure and Docker Hub
+![Verify Deployment](./media/logsnapshot.png)
 
-## 1. Azure Environment Setup
+
+#### Part 1: Setting Up Azure and Docker Hub
+
+##### 1. Azure Environment Setup
 To begin deploying your application to the cloud, you first need to set up an Azure environment. This involves creating an Azure subscription, setting up a resource group, and preparing Azure services like Azure Key Vault and Azure Container Registry.
 
-### Create an Azure Subscription
+##### Create an Azure Subscription
 - If you don't already have an Azure subscription, create one through the [Azure Portal](https://portal.azure.com).
 - Log in with your credentials and set up a payment method for billing.
 
-### Create a Resource Group
+##### Create a Resource Group
 - In the Azure Portal, navigate to **Resource groups** and click on **Add**.
 - Provide a name for your resource group and select the region that is closest to you for optimal performance.
   
-### Azure Key Vault Setup
+##### Azure Key Vault Setup
 - Go to **Key Vaults** in the Azure Portal and create a new one within your resource group.
 - Add secrets for your application, such as database connection strings or API keys.
 - Assign appropriate access policies for your applications to retrieve these secrets.
 
-### Azure Container Registry (ACR)
+#### Azure Container Registry (ACR)
 - Create an Azure Container Registry to store your Docker images.
 - Navigate to **Container registries** and add a new registry to your resource group.
 - Choose a unique name, enable the admin user, and select a pricing tier.
 
-## 2. Docker Hub Setup
+#### 2. Docker Hub Setup
 If you prefer to use Docker Hub instead of ACR to store your Docker images, set up an account on [Docker Hub](https://hub.docker.com/).
 
-### Create a Docker Hub Repository
+##### Create a Docker Hub Repository
 - Sign in to your Docker Hub account.
 - Navigate to **Repositories** and click on **Create Repository**.
 - Choose a name for your repository, set it to private if necessary, and click **Create**.
 
+![Docker Hub Repository](./media/dockerhub.png)
+
 **Note:** Ensure the repository name on Docker Hub matches the name used in your Dockerfile and Azure Pipeline configurations.
 
-## 3. Local Docker Image Preparation
+#### 3. Local Docker Image Preparation
 Before you can push your image to ACR or Docker Hub, you need to have a Docker image ready on your local machine.
 
-### Build the Docker Image Locally
+##### Build the Docker Image Locally
 - Run the Docker build command with a tag that matches your repository name:
   ```bash
   docker build -t <docker-hub-username>/<repository-name>:<tag> .
   ```
 - Ensure the build completes successfully and the image is listed in your local Docker images.
 
-### Push the Image to Docker Hub
+##### Push the Image to Docker Hub
 - Log in to Docker Hub from your command line:
   ```bash
   docker login --username <docker-hub-username>
@@ -242,19 +246,19 @@ Before you can push your image to ACR or Docker Hub, you need to have a Docker i
   docker push <docker-hub-username>/<repository-name>:<tag>
   ```
 
-# Part 2: Preparing for Terraform Deployment
+#### Part 2: Preparing for Terraform Deployment
 
-## 1. Azure Service Principal Creation
+#### 1. Azure Service Principal Creation
 To allow Terraform to interact with Azure, you'll need to create a Service Principal which acts as an identity for Terraform to provision resources within your Azure subscription.
 
-### Create Service Principal
+##### Create Service Principal
 - Use Azure CLI to create a new Service Principal and assign it a role with adequate permissions to manage resources in the specified subscription and resource group.
   ```bash
   az ad sp create-for-rbac --name <ServicePrincipalName> --role Contributor --scopes /subscriptions/<YourSubscriptionID>/resourceGroups/<YourResourceGroup>
   ```
 - Take note of the `appId`, `password`, `tenant`, and `name` in the output. These will be your `TF_VAR_client_id`, `TF_VAR_client_secret`, `TF_VAR_tenant_id`, and `TF_VAR_subscription_id` respectively.
 
-## 2. Configuring Environment Variables
+#### 2. Configuring Environment Variables
 Set the environment variables that Terraform will use to authenticate with Azure. Use the must-run-me.sh script to set these variables for your session.
 
 Read `/aks-terraform/must-read-this.md` for more details
@@ -266,7 +270,7 @@ source must-run-me.sh
 ```
 Alternatively, you can manually export these variables on your machine. 
 
-### Set Environment Variables on Local Machine
+##### Set Environment Variables on Local Machine
 - For Linux or macOS:
   ```bash
   export TF_VAR_client_id=<YourServicePrincipalAppId>
@@ -281,32 +285,32 @@ Alternatively, you can manually export these variables on your machine.
   $env:TF_VAR_subscription_id="<YourAzureSubscriptionId>"
   $env:TF_VAR_tenant_id="<YourAzureTenantId>"
   ```
-### 3. Terraform Configuration Files
+##### 3. Terraform Configuration Files
 Create and configure your Terraform files, including `main.tf`, `variables.tf`, and `outputs.tf`, to define the Azure resources required for your project.
 
-#### main.tf
+##### main.tf
 - Define your provider and specify the required Azure provider version.
 - Use modules or resource blocks to define your Azure resources such as AKS, Azure SQL, etc.
 
-#### variables.tf
+##### variables.tf
 - Declare variables for your configurations like resource group name, location, etc.
 
-#### outputs.tf
+##### outputs.tf
 - Define outputs that you'll use after the Terraform deployment, like the AKS kubeconfig or public IP addresses.
 
 ##### 4. Version Controlling Terraform Files
 Check your Terraform files into version control, ensuring any sensitive information is omitted or encrypted. Make use of `.gitignore` to exclude files with sensitive information.
 
-#### .gitignore
+##### .gitignore
 - Include files like `*.tfvars` or the `.terraform/` directory to prevent sensitive data exposure.
 
 
-# Part 3: Initializing and Applying Terraform Configuration
+#### Part 3: Initializing and Applying Terraform Configuration
 
-## 1. Terraform Initialization
+#### 1. Terraform Initialization
 Initialization is the first command that should be run after writing new Terraform configurations. It initializes various local settings and data that will be used by subsequent commands.
 
-### Initialize Terraform
+#### Initialize Terraform
 - Navigate to the directory containing your Terraform configuration files (`main.tf`, `variables.tf`, etc.).
 - Run the following command to initialize Terraform:
   ```bash
@@ -314,103 +318,105 @@ Initialization is the first command that should be run after writing new Terrafo
   ```
 - This command will download the necessary Terraform providers and modules required for the configuration.
 
-## 2. Terraform Planning
+### 2. Terraform Planning
 The `plan` command is used to create an execution plan. Terraform performs a refresh, unless explicitly disabled, and then determines what actions are necessary to achieve the desired state specified in the configuration files.
 
-### Create Terraform Plan
+#### Create Terraform Plan
 - Execute the plan command to see the changes that Terraform plans to make to your Azure resources:
   ```bash
   terraform plan
   ```
 - Review the plan to ensure that the changes it proposes are expected and correct.
 
-### 3. Terraform Applying
+#### 3. Terraform Applying
 After planning and reviewing the proposed changes, the `apply` command is used to apply the changes required to reach the desired state of the configuration.
 
-#### Apply Terraform Configuration
+##### Apply Terraform Configuration
 - Apply your Terraform configuration to create the resources in Azure:
   ```bash
   terraform apply
   ```
 - Terraform will show the plan again and prompt for approval before making any changes. Type `yes` to proceed.
 
-### 4. Verifying Deployment
+#### 4. Verifying Deployment
 Once Terraform has been applied, it's important to verify that the resources have been created correctly in Azure.
 
 #### Verify Resources
 - Check the Azure Portal to ensure that the resources listed in the Terraform output are correctly provisioned.
 - Use the `terraform output` command to easily access the values of outputs from your Terraform state file.
 
-### 3. Terraform Configuration Files
+#### 3. Terraform Configuration Files
 Create and configure your Terraform files, including `main.tf`, `variables.tf`, and `outputs.tf`, to define the Azure resources required for your project.
 
-#### main.tf
+##### main.tf
 - Define your provider and specify the required Azure provider version.
 - Use modules or resource blocks to define your Azure resources such as AKS, Azure SQL, etc.
 
-#### variables.tf
+##### variables.tf
 - Declare variables for your configurations like resource group name, location, etc.
 
-#### outputs.tf
+##### outputs.tf
 - Define outputs that you'll use after the Terraform deployment, like the AKS kubeconfig or public IP addresses.
 
 ### 4. Version Controlling Terraform Files
 Check your Terraform files into version control, ensuring any sensitive information is omitted or encrypted. Make use of `.gitignore` to exclude files with sensitive information.
 
-#### .gitignore
+##### .gitignore
 - Include files like `*.tfvars` or the `.terraform/` directory to prevent sensitive data exposure.
 
 
-## Part 4: CI/CD Pipeline Setup in Azure DevOps
+#### Part 4: CI/CD Pipeline Setup in Azure DevOps
 
-### 1. Docker Image Creation and Push to Registry
+##### 1. Docker Image Creation and Push to Registry
 Utilizing the Dockerfile provided, build a Docker image that will be pushed to a container registry, which in this case can be Docker Hub or Azure Container Registry (ACR).
 
-### Build the Docker Image
+##### Build the Docker Image
 -# Execute the Docker build command within the directory containing your Dockerfile. Tag the image appropriately:
   ```bash
   docker build -t your-username/your-repo-name:tag .
   ```
 
-#### Push the Image to the Registry
+##### Push the Image to the Registry
 - Authenticate with your container registry and push the built image:
   ```bash
   docker login
   docker push your-username/your-repo-name:tag
   ```
 
-### 2. Azure DevOps Pipeline Configuration
+##### 2. Azure DevOps Pipeline Configuration
 Create a CI/CD pipeline in Azure DevOps that builds the Docker image, pushes it to the container registry, and deploys it to Azure Kubernetes Service (AKS) using the `azure-pipelines.yml` file.
 
-#### Create a New Pipeline
+##### Create a New Pipeline
 - In Azure DevOps, navigate to Pipelines and create a new pipeline.
 - Connect your GitHub repository or another source where your code is stored.
 - Select the existing `azure-pipelines.yml` file or create a new one.
 
-#### Pipeline YAML File
+##### Pipeline YAML File
 - Use the provided `azure-pipelines.yml` file, which defines steps for building and pushing the Docker image and deploying it to AKS.
 - Make sure to replace `walaab/aicorefinalproject` with your actual Docker Hub repository or ACR name.
 - Customize the AKS deployment details, like resource group and cluster name, to match your environment.
 
-### 3. Terraform Deployment
+#### 3. Terraform Deployment
 With Terraform, automate the provisioning of your AKS cluster and related Azure resources as described in the `main.tf` and `variables.tf` files.
 
-### Terraform Apply
+##### Terraform Apply
 - Run `terraform apply` within your CI/CD pipeline to create or update the AKS cluster as defined in your Terraform files.
 
-### 4. Application Deployment to AKS
+#### 4. Application Deployment to AKS
 Deploy your application to AKS using the Kubernetes manifest file `application-manifest.yaml`.
 
-#### Kubernetes Manifest
+##### Kubernetes Manifest
 - The `application-manifest.yaml` file defines the desired state of your application deployment and service in the AKS cluster.
 - Update the `image` property to use the Docker image URL from your container registry.
 
-### 5. Monitoring and Management
+#### 5. Monitoring and Management
 Once deployed, monitor the AKS cluster and application using Azure Monitor and other Azure services. Ensure logging and monitoring are configured for observability.
 
-### Verify Deployment
+##### Verify Deployment
 - After the pipeline runs, verify that the application is successfully deployed to AKS by checking the output of `kubectl get pods`.
 - Access your application via the load balancer or ingress controller as configured in your AKS setup.
+
+![Verify Deployment](./media/logsnapshot.png)
 
 ## Technology Stack
 
@@ -480,6 +486,8 @@ This technology stack provides a solid foundation for developing, deploying, and
 
 ## Reverted Features: Delivery Date Column
 
+![Reverted Features: Delivery Date Column](./media/revertapplication.png)
+
 ### Overview
 The Delivery Date feature was introduced to enhance order management by tracking the anticipated delivery dates for orders. However, due to unforeseen complexities and user feedback, this feature was later reverted.
 
@@ -532,7 +540,7 @@ Containerization with Docker offers numerous benefits:
 - **Isolation**: Each container operates independently, reducing conflicts between running applications.
 - **Scalability**: Containers can be easily scaled up or down to match demand.
 
-![Docker and Kubernetes Workflow](media/docker_kubernetes_workflow.png "Docker and Kubernetes Workflow")
+![Docker and Kubernetes Workflow](media/docerworkflow.jpg)
 
 This modern approach to deployment aligns with DevOps practices, facilitating continuous integration and continuous delivery (CI/CD) pipelines for faster and more reliable application updates.
 
@@ -544,6 +552,9 @@ Infrastructure as Code (IaC) is a key practice in DevOps, allowing the managemen
 ### Understanding IaC with Terraform
 
 Terraform, by HashiCorp, is an open-source tool that allows you to define both cloud and on-prem resources in human-readable configuration files that can be versioned, reused, and shared. With Terraform, infrastructure is managed as code; you can apply practices like code review, version control, and continuous integration/continuous deployment (CI/CD) to your infrastructure.
+
+![DevOps Pipeline Architecture](media/DevOps%20Pipeline%20Architecture.png "DevOps Pipeline Architecture Overview")
+
 
 #### Key Concepts of Terraform
 
@@ -597,7 +608,7 @@ Terraform keeps track of your infrastructure's state, allowing it to create incr
 - **Modularize**: Use modules to break down your configurations into manageable, reusable pieces.
 - **Secure Secrets**: Use Terraform's secret management tools or integrate with a secret manager like Azure Key Vault to handle sensitive information.
 
-![Terraform with Azure](./media/terraform_azure.png "Managing Azure Resources with Terraform")
+![Terraform with Azure](./media/azureresouce.png)
 
 By adopting Infrastructure as Code, teams can ensure that their infrastructure provisioning processes are as agile, reliable, and transparent as their application development workflows.
 
@@ -675,6 +686,8 @@ For further information, refer to the [Azure Kubernetes Service documentation](h
 
 
 ## CI/CD Pipeline Seamless Execution Overview
+![Seamless Execution](./media/seemlessPipline.gif)
+
 
 Upon merging changes into the main branch, our CI/CD pipeline in Azure DevOps is automatically triggered, performing a seamless transition from code commit to deployment:
 
@@ -688,6 +701,8 @@ Upon merging changes into the main branch, our CI/CD pipeline in Azure DevOps is
 ### CI/CD Pipeline Details
 
 The CI/CD pipeline is configured to ensure that the integration and deployment of changes are as smooth as possible. This is achieved through a series of steps that automate the build, test, and deployment processes, significantly reducing manual intervention and minimizing the risk of human error.
+
+![Verify Deployment](./media/pipelinecode.png)
 
 #### Pipeline Workflow
 
